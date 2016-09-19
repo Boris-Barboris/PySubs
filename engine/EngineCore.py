@@ -22,8 +22,10 @@ def loadModule(moduleName):
         mdl = importlib.import_module(moduleName)
         loaded_modules[moduleName] = mdl
         mdl.onLoad(sys.modules[__name__])
+        return
     except BaseException as ex:
         print('Error while loading module ' + moduleName + ':\n' + str(ex))
+        raise
         
 
 

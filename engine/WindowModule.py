@@ -37,15 +37,16 @@ class Window:
     background_color = (35, 35, 35)
     wnd_size = (800, 500)
     wnd_name = 'BoobsEngine window'
+    vsync = True
 
     def __init__(self, name = wnd_name, 
                  size = wnd_size, 
                  clr = background_color):
-        self.settings = window.ContextSettings(0, 0, 0, 2, 0)
+        self.settings = window.ContextSettings(0, 0, 4, 2, 0)
         self.wnd_handle = sfml.RenderWindow(sfml.VideoMode(*size), 
             name, window.Style.RESIZE | window.Style.CLOSE, self.settings)
         self._fullscreen = False
-        self.wnd_handle.vertical_synchronization = True
+        self.wnd_handle.vertical_synchronization = Window.vsync
         self.background_color = clr
         self.wnd_handle.clear(sfml.Color(*self.background_color))
         self.wnd_title = name
@@ -73,7 +74,7 @@ class Window:
                 self.wnd_handle.recreate(mode, self.wnd_title, 
                     window.Style.RESIZE | window.Style.CLOSE, self.settings)
             self._fullscreen = val
-            self.wnd_handle.vertical_synchronization = True
+            self.wnd_handle.vertical_synchronization = Window.vsync
 
     def draw(self, *args):
         self.wnd_handle.draw(*args)
@@ -93,7 +94,7 @@ class Window:
             self.wnd_handle.recreate(new_mode, self.wnd_title, 
                 window.Style.RESIZE | window.Style.CLOSE, self.settings)
             self.wnd_handle.position = other.wnd_position
-            self.wnd_handle.vertical_synchronization = True
+        self.wnd_handle.vertical_synchronization = Window.vsync
 
 
 

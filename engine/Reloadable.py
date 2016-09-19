@@ -6,8 +6,12 @@ module_heap = {}
         
 
 def reloadable(cls):
+    class MetaReloadable(type):
+        def __getattr__(_cls, name):
+            return cls.__getattribute__(cls, name)
+
     '''Decorate class in order to make it's instances reloadable'''
-    class Reloadable:
+    class Reloadable(metaclass=MetaReloadable):
         '''Proxy for reloadable class'''
         __cls = cls
 
@@ -71,7 +75,10 @@ def reloadable(cls):
             # check if there is reload method
             reload_method = getattr(new_obj, '_reload')
             if reload_method:
-                new_obj._reload(self.__obj)
+                try:
+                    new_obj._reload(self.__obj)
+                except Exception:
+                    pass
             # update wrapper class and instance
             self.__obj = new_obj
             Reloadable.__cls = new_cls

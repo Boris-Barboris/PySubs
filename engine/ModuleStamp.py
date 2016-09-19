@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sys
 import os.path
@@ -31,7 +31,7 @@ def onUnload():
     pass
 
 
-active = True
+_active = True
 
 module_hash = {}
 
@@ -40,7 +40,7 @@ def initialize():
         module_hash[mdl] = time.ctime(os.path.getmtime(EngineCore.loaded_modules[mdl].__file__))
 
 def handle_focus(event, wnd):
-    if active and event.gained:
+    if _active and event.gained:
         # let's loop over loaded modules and reload those with new file stamps
         for mdl in EngineCore.loaded_modules:
             new_time = time.ctime(os.path.getmtime(EngineCore.loaded_modules[mdl].__file__))
@@ -56,6 +56,6 @@ def handle_focus(event, wnd):
 def toggle_command(cmds):
     global active
     if cmds[1] in ('on', '1'):
-        active = True
+        _active = True
     elif cmds[1] in ('off', '0'):
-        active = False
+        _active = False
