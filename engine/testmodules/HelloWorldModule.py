@@ -28,7 +28,7 @@ def onLoad(core):
     
     fnt = TextManager.load_font('calibri.ttf')
     global center_text    
-    center_text = Text('MABOO Engine', fnt, 40)
+    center_text = Text('Boobs Engine', fnt, 40)
     center_text.color = clr
     center_text.style = style
     global fps_text    

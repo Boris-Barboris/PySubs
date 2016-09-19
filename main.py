@@ -1,4 +1,4 @@
-import engine.EngineCore as EngineCore
+﻿import engine.EngineCore as EngineCore
 import engine.Reloadable as Reloadable
 import engine.testmodules.font_testing as font_testing
 
@@ -7,3 +7,4 @@ import engine.testmodules.font_testing as font_testing
 #EngineCore.testWindowModule()
 #Reloadable.testReloadable()
 font_testing.text_test1()
+exit()

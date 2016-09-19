@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sys
 

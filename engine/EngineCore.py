@@ -11,6 +11,9 @@ loaded_modules = {}     # List of modules, currently loaded
 
 def loadModule(moduleName):
     '''Dynamically load engine module'''
+    if moduleName == __name__:
+        print('EngineCore: cannot load EngineCore')
+        return
     print('EngineCore: Loading module ' + moduleName)
     if moduleName in loaded_modules:
         print('EngineCore: Module ' + moduleName + ' is already loaded')
@@ -26,6 +29,9 @@ def loadModule(moduleName):
 
 def reloadModule(moduleName):
     '''Reload engine module'''
+    if moduleName == __name__:
+        print('EngineCore: cannot load EngineCore')
+        return
     if moduleName in loaded_modules:
         print('EngineCore: Reloading module ' + moduleName)
         mdl = loaded_modules[moduleName]
@@ -86,7 +92,8 @@ def run():
             if _shutdown_flag:
                 print('Terminating EngineCore normally...')
                 return
-        
+
+
 
 # Tests
 
@@ -115,4 +122,3 @@ def testWindowModule():
     loadModule('engine.IOBroker')
     loadModule('engine.EngineConsole') 
     run()
-
