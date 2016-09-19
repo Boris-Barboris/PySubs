@@ -28,6 +28,9 @@
     <Compile Include="engine\IOBroker.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine\ModuleStamp.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine\Reloadable.py">
       <SubType>Code</SubType>
     </Compile>

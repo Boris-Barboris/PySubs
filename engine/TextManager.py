@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sfml
 import sfml.graphics as graphics
@@ -15,7 +15,7 @@ def onLoad(core):
     global Logging
     Logging = EngineCore.loaded_modules['engine.Logging']
     Logging.logMessage('TextManager is loading')
-    load_font('arial.ttf')
+    load_font('calibri.ttf')
 
 def onUnload():
     Logging.logMessage('TextManager is unloading')

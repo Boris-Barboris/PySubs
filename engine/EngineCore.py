@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import importlib
 import imp
@@ -41,7 +41,7 @@ def reloadModule(moduleName):
             print('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))
     else:
-        print('EngineCore: No module ' + moduleName + ' is found')
+        print('EngineCore: No module ' + moduleName + ' is found, loading')
         loadModule(moduleName)
 
 # Scheduling and execution section

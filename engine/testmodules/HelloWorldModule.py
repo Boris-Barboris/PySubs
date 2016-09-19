@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sfml
 import time
@@ -70,7 +70,7 @@ def run():
     global time_hp, avg_fps
     frame_time = time.clock() - time_hp
     time_hp += frame_time
-    avg_fps = 0.9 * avg_fps + 0.1 / frame_time
+    avg_fps = 0.5 * avg_fps + 0.5 / frame_time
 
     fps_text.string = "{0:.1f}".format(avg_fps)
     textbounds = fps_text.local_bounds

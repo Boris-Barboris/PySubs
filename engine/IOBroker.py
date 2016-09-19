@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sfml
 
@@ -91,7 +91,7 @@ def close_std_event(event, wnd):
 
 def fullscreen_std_event(event, wnd):
     # switch fullscreen on\off
-    if event.code == sfml.window.Keyboard.F and event.alt and event.pressed:
+    if event.code == sfml.window.Keyboard.F and event.pressed:
         wnd.set_fullscreen(not wnd.is_fullscreen())
 
 def resize_std_event(event, wnd):

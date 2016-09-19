@@ -1,7 +1,10 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sfml.window
+
+from engine.Reloadable import reload_module_instances, reloadable
 from sfml.window import Keyboard as keyboard
+
 
 Logging = None
 EngineCore = None
@@ -19,6 +22,10 @@ def onLoad(core):
     Logging.logMessage('EngineConsole is loading')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
     IOBroker.register_handler(keyboard_handler, sfml.window.KeyEvent)
+    # now extensions
+    reload_module_instances(__name__)
+    global extensionCommands
+    extensionCommands = ExtentionCommands._persistent('EngineConsole.extensionCommands')
 
 def onUnload():
     Logging.logMessage('EngineConsole is unloading')
@@ -49,6 +56,8 @@ def run():
             elif cmd == 'load':
                 mdl_name = cmds[1]
                 EngineCore.loadModule(mdl_name)
+            elif cmd in extensionCommands.extensions:
+                extensionCommands.extensions[cmd](cmds)
         except Exception as ex:
             print('Input error')
     _active = False
@@ -60,3 +69,21 @@ def keyboard_handler(event, wnd):
         # let's enter or leave repl
         global _active
         _active = True
+
+
+# commands registered by other modules
+@reloadable
+class ExtentionCommands:
+    def __init__(self):
+        self.extensions = {}
+
+    def _reload(self, other):
+        self.extensions.update(other)
+
+extensionCommands = None
+
+def register_extension(f, cmd):
+    extensionCommands.extensions[cmd] = f
+
+def unregister_extension(cmd):
+    del extensionCommands.extensions[cmd]

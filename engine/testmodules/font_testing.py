@@ -1,4 +1,4 @@
-# tests
+﻿# tests
 
 def text_test1():
     import engine.EngineCore as core
@@ -8,4 +8,5 @@ def text_test1():
     core.loadModule('engine.EngineConsole')
     core.loadModule('engine.TextManager')
     core.loadModule('engine.testmodules.HelloWorldModule')
+    core.loadModule('engine.ModuleStamp')
     core.run()

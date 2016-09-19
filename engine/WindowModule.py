@@ -1,4 +1,4 @@
-#   Copyright Alexander Baranin 2016
+﻿#   Copyright Alexander Baranin 2016
 
 import sfml
 
@@ -73,6 +73,7 @@ class Window:
                 self.wnd_handle.recreate(mode, self.wnd_title, 
                     window.Style.RESIZE | window.Style.CLOSE, self.settings)
             self._fullscreen = val
+            self.wnd_handle.vertical_synchronization = True
 
     def draw(self, *args):
         self.wnd_handle.draw(*args)
