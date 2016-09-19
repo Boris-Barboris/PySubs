@@ -60,7 +60,7 @@ will handle them, since they are executed by OS scheduler's rules anyway, so
 there's no real reason to escalate their creating to EngineCore. Instead, we'll
 leave the right to spawn and destroy threads to Modules. EngineCore scheduler on
 the other hand will orchestrate synchronous parts of Module execution, in simple
-FIFO way.
+FIFO manner.
     FIFO scheduler will sequentially perform sequential actions. Clients of
 FIFO scheduler will request for integer-identified slot in ordered list of 
 schedulable tasks. EngineCore will then iterate over them in ascending order.

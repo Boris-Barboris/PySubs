@@ -73,6 +73,10 @@
     <Folder Include="engine\" />
     <Folder Include="engine\testmodules\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="License.txt" />
+    <Content Include="README.txt" />
+  </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
 </Project>
