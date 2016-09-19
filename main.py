@@ -1,4 +1,6 @@
-﻿import engine.EngineCore as EngineCore
+﻿#!/usr/bin/python3.3
+
+import engine.EngineCore as EngineCore
 import engine.Reloadable as Reloadable
 import engine.testmodules.font_testing as font_testing
 
