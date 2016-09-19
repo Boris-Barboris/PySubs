@@ -1,6 +1,7 @@
 ﻿#   Copyright Alexander Baranin 2016
 
 import sys
+import weakref
 
 module_heap = {}
         
@@ -94,7 +95,7 @@ def reloadable(cls):
                 id_hash = module_heap[mdl]
                 id_hash[_id] = self
             else:
-                new_dict = {}
+                new_dict = weakref.WeakValueDictionary()
                 new_dict[_id] = self
                 module_heap[mdl] = new_dict
 
@@ -118,6 +119,7 @@ def reloadable(cls):
                 str(hex(id(self))) + '>'
 
     return Reloadable
+    
 
 def reload_module_instances(mdl_name):
     if mdl_name in module_heap:
@@ -125,6 +127,23 @@ def reload_module_instances(mdl_name):
         for id in dct:
             rldbl = dct[id]
             rldbl._reload_instance()
+            
+def freeze_module_instances(mdl_name):
+    if mdl_name in module_heap:
+        weak_dct = module_heap[mdl_name]
+        str_dct = {}
+        for id in weak_dct:
+            rldbl = weak_dct[id]
+            if rldbl:
+                str_dct[id] = rldbl
+        module_heap[mdl_name] = str_dct
+            
+def unfreeze_module_instances(mdl_name):
+    if mdl_name in module_heap:
+        str_dct = module_heap[mdl_name]
+        weak_dct = weakref.WeakValueDictionary(str_dct)
+        module_heap[mdl_name] = weak_dct
+            
 
 @reloadable
 class TestClass:

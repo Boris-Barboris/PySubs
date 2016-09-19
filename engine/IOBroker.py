@@ -2,7 +2,8 @@
 
 import sfml
 
-from engine.Reloadable import reloadable, reload_module_instances
+from engine.Reloadable import reloadable, freeze_module_instances, \
+    reload_module_instances, unfreeze_module_instances
 
 Logging = None
 EngineCore = None
@@ -23,6 +24,7 @@ def onLoad(core):
     reload_module_instances(__name__)
     global event_map    
     event_map = EventHandlerMap._persistent('IOBroker.event_map')
+    unfreeze_module_instances(__name__)
     # standard window event handlers
     register_handler(close_std_event, sfml.window.CloseEvent)
     register_handler(fullscreen_std_event, sfml.window.KeyEvent)
@@ -31,6 +33,7 @@ def onLoad(core):
 def onUnload():
     Logging.logMessage('IOBroker is unloading')
     # standard window event handlers
+    freeze_module_instances(__name__)
     unregister_handler(close_std_event, sfml.window.CloseEvent)
     unregister_handler(fullscreen_std_event, sfml.window.KeyEvent)
     unregister_handler(resize_std_event, sfml.window.ResizeEvent)

@@ -2,7 +2,8 @@
 
 import sfml.window
 
-from engine.Reloadable import reload_module_instances, reloadable
+from engine.Reloadable import reloadable, freeze_module_instances, \
+    reload_module_instances, unfreeze_module_instances
 from sfml.window import Keyboard as keyboard
 
 
@@ -26,9 +27,11 @@ def onLoad(core):
     reload_module_instances(__name__)
     global extensionCommands
     extensionCommands = ExtentionCommands._persistent('EngineConsole.extensionCommands')
+    unfreeze_module_instances(__name__)
 
 def onUnload():
     Logging.logMessage('EngineConsole is unloading')
+    freeze_module_instances(__name__)
     IOBroker.unregister_handler(keyboard_handler, sfml.window.KeyEvent)
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 

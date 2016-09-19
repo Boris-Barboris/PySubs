@@ -4,9 +4,7 @@ PySubs game concept.
 
 2. Opensource.
 
-3. Portable. Most probably, SDL will be used. PySDL2 binding module is
-a promising stack. Will probably need to check PyPy JIT-related problems and
-switch to CPython.
+3. Portable. Currently, PySFML is used as middleware, wich is using OpenGL.
 
 4. Main focus on architecture. Gameplay is secondary. Assets are nonexistent.
 
@@ -19,7 +17,7 @@ switch to CPython.
     - time management. Engine Core is module manager and scheduler. Interactive
     pausing, time flow alteration, background processing,  multithreading for 
     heavyweight tasks.
-    - debugger binding. All parts of python code must be debuggable. Debugging
+    - ease of debugging. All parts of python code must be debuggable. Debugging
     itself should be handled by external tools of course, and there should be
     little problem to enter it.
     - not terrible performance.
@@ -45,9 +43,15 @@ variable namespace, wich can be loaded and unloaded in the runtime.
 wich will stay in memory and keep old module fields, methods etc. Therefore we 
 should handle object lifetime carefully. Constructor should be written in a way 
 to register object in some kind of dictionary or array, specific to module.
-    Module life cycle is handled by EngineCore. onModuleLoad and OnModuleUnload
-should probably be exported by all modules and should handle construction or 
-destruction of static objects, or maybe some other responsibilities.
+    Module life cycle is handled by EngineCore. onLoad and onUnload functions
+should be exported by all modules that want to be reloadable, and it's module's 
+responsibility to handle gracefull variable initialization, restoration, destruction.
+    engine.Reloadable module is providing class decorator wich will be used in
+order to abstract away reloadable types with a lot of instances, referenced from
+many places. It is essentially a smart wrapper with transparent attribute
+lookup and global object registration, needed for underlying object reallocation 
+and reinitialization after module reloading.
+    
 
 EngineCore scheduling:
 
@@ -70,5 +74,6 @@ to gracefully stop and restart threads on module reload though.
 
 Debugging:
 
-    pdb standard module provides rich functionality. At first we'll stop on 
-simple debugging from Visual Studio, but that may change in the future.
+    pdb standard module provides rich functionality, well exposed by Visual
+Studio VSPT extension. All required features are present, so no additional effort
+is needed from my side.

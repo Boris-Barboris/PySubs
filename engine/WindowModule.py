@@ -3,7 +3,8 @@
 import sfml
 
 from sfml import window
-from engine.Reloadable import reloadable, reload_module_instances
+from engine.Reloadable import reloadable, freeze_module_instances, \
+    reload_module_instances, unfreeze_module_instances
 
 Logging = None
 EngineCore = None
@@ -19,12 +20,14 @@ def onLoad(core):
     reload_module_instances(__name__)
     global app_window
     app_window = Window._persistent('WindowModule.app_window')
+    unfreeze_module_instances(__name__)
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
     Logging.logMessage('WindowModule is unloading')
     global wnd_handle
     app_window.close_window()
+    freeze_module_instances(__name__)
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 
 
