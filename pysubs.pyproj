@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8e9bbb4c-eb71-4487-be37-00ff81fc54b0}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
+    <InterpreterVersion>3.3</InterpreterVersion>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="engine\EngineConsole.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\IOBroker.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\Reloadable.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\font_testing.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\HelloWorldModule.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\TestBootstrap.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\EngineCore.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\Logging.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\TestFIFOModule2.py" />
+    <Compile Include="engine\testmodules\TestFIFOModule1.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\TextManager.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\WindowModule.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="engine\" />
+    <Folder Include="engine\testmodules\" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

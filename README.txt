@@ -1,0 +1,74 @@
+PySubs game concept.
+
+1. It's a training project, with a goal to study Python programming language.
+
+2. Opensource.
+
+3. Portable. Most probably, SDL will be used. PySDL2 binding module is
+a promising stack. Will probably need to check PyPy JIT-related problems and
+switch to CPython.
+
+4. Main focus on architecture. Gameplay is secondary. Assets are nonexistent.
+
+5. Requirements for engine:
+    - interactive development. Game object environment is decoupled from 
+    Engine Core, objects are defined in modules that can be recompiled and 
+    reloaded in the runtime. World state should be changed accordingly to 
+    encorporate new code. That helps with interactively debugging parts of
+    the game.
+    - time management. Engine Core is module manager and scheduler. Interactive
+    pausing, time flow alteration, background processing,  multithreading for 
+    heavyweight tasks.
+    - debugger binding. All parts of python code must be debuggable. Debugging
+    itself should be handled by external tools of course, and there should be
+    little problem to enter it.
+    - not terrible performance.
+    - 2D graphics support, 3D not needed, Audio questionable.
+    - component model for game objects.
+
+6. No formalized modular testing. Instead, interactive debugging 
+mini-programs for particular modules.
+
+7. Gameplay concepts milestone 0.1:
+    - one submarine. One torpedo type. One civilian surface ship type.
+    Sea of square form. Primitive civilian AI, torpedo guidance mechanism,
+    simple acoustic sensors. Basic GUI.
+
+
+Modular architecture:
+
+    Module - corresponds to set of tightly coupled python modules, prone to dynamic
+reloading. Element of structural segregation of engine code. In python it has direct
+representative in the form of "python module". It's best to understand it as 
+variable namespace, wich can be loaded and unloaded in the runtime.
+    Common problem in module reloading is leftover objects in foreign namespaces,
+wich will stay in memory and keep old module fields, methods etc. Therefore we 
+should handle object lifetime carefully. Constructor should be written in a way 
+to register object in some kind of dictionary or array, specific to module.
+    Module life cycle is handled by EngineCore. onModuleLoad and OnModuleUnload
+should probably be exported by all modules and should handle construction or 
+destruction of static objects, or maybe some other responsibilities.
+
+EngineCore scheduling:
+
+    What is typical game loop made of? Handle I/O. Game logic processing.
+Rendering (layered scene rendering, UI). Background long-going tasks. 
+Background audio. Some tasks are strongly ordered, some are everlasting daemons. 
+It's generally a hard task to make such system adaptable.
+    It's good to notice, that for background tasks it doesn't really matter who
+will handle them, since they are executed by OS scheduler's rules anyway, so
+there's no real reason to escalate their creating to EngineCore. Instead, we'll
+leave the right to spawn and destroy threads to Modules. EngineCore scheduler on
+the other hand will orchestrate synchronous parts of Module execution, in simple
+FIFO way.
+    FIFO scheduler will sequentially perform sequential actions. Clients of
+FIFO scheduler will request for integer-identified slot in ordered list of 
+schedulable tasks. EngineCore will then iterate over them in ascending order.
+    If some of those Modules needs some form of multithreading or background
+processing, he is free to spawn whatever he wants on their own. It is expected
+to gracefully stop and restart threads on module reload though.
+
+Debugging:
+
+    pdb standard module provides rich functionality. At first we'll stop on 
+simple debugging from Visual Studio, but that may change in the future.
