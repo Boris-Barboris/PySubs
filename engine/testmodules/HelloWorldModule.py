@@ -80,7 +80,7 @@ triangle = None
 def run():
     wnd = WindowModule.app_window
     wnd_size = wnd.wnd_handle.size
-
+        
     view.reset(Rectangle((0, 0), wnd_size))
     wnd.wnd_handle.view = view
 

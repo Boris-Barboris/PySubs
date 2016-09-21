@@ -25,6 +25,9 @@
     <Compile Include="engine\EngineConsole.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine\InputEvent.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine\IOBroker.py">
       <SubType>Code</SubType>
     </Compile>

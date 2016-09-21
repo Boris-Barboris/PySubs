@@ -14,11 +14,11 @@ def reloadable(cls):
     '''Decorate class in order to make it's instances reloadable'''
     class Reloadable(metaclass=MetaReloadable):
         '''Proxy for reloadable class'''
-        __cls = cls
+        _cls = cls
 
         def __init__(self, *args, **kwargs):
             # hold wrapped class object in class attribute
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
             self.__obj.__init__(*args, **kwargs)
@@ -28,7 +28,7 @@ def reloadable(cls):
         def __init__(self, _id, *args, **kwargs):
             '''Initialize using overridden id'''
             # hold wrapped class object in class attribute
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
             self.__obj.__init__(*args, **kwargs)
@@ -38,7 +38,7 @@ def reloadable(cls):
         @classmethod
         def _persistent(cls, _id, *args, **kwargs):
             '''Get persistent instance from id or initialize new one.'''
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             mdl = _cls.__module__
             if mdl in module_heap:
                 # try to find old proxy instance with same id
@@ -66,10 +66,10 @@ def reloadable(cls):
 
         def _reload_instance(self):
             '''Reload __obj and __class form new module'''
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             mdl = sys.modules[_cls.__module__]
             new_rld_cls = getattr(mdl, _cls.__name__)
-            new_cls = new_rld_cls._Reloadable__cls
+            new_cls = new_rld_cls._cls
             new_obj = new_cls.__new__(new_cls)
             # use default constructor (wich is required)
             new_obj.__init__()
@@ -82,12 +82,12 @@ def reloadable(cls):
                     pass
             # update wrapper class and instance
             self.__obj = new_obj
-            Reloadable.__cls = new_cls
+            Reloadable._cls = new_cls
             self.__class__ = new_rld_cls
 
         def __register(self, _id = None):
             '''register instance in global map'''
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             mdl = _cls.__module__
             if not _id:
                 _id = id(self)
@@ -101,7 +101,7 @@ def reloadable(cls):
 
         def __unregister(self):
             '''unregister instance from global map'''
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             mdl = _cls.__module__
             if mdl in module_heap:
                 id_hash = module_heap[mdl]
@@ -113,7 +113,7 @@ def reloadable(cls):
 
         # string representation should be fixed
         def __repr__(self):
-            _cls = Reloadable.__cls
+            _cls = Reloadable._cls
             return '<' + reloadable.__module__ + '.reloadable(' + \
                 _cls.__module__ + '.' + _cls.__name__ + ') object at ' + \
                 str(hex(id(self))) + '>'

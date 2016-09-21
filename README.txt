@@ -77,3 +77,31 @@ Debugging:
     pdb standard module provides rich functionality, well exposed by Visual
 Studio VSPT extension. All required features are present, so no additional effort
 is needed from my side.
+
+IO concept:
+    
+    Before defining rendering scheme, let's get a straight understanding of I\O.
+Let's define two input patterns - managed by engine and unmanaged. Managed will be
+using strong input focus, and synchronously relay window events to input reciever.
+Unmanaged - asynchronous check from random places.
+    Managed will operate with rectangular input recievers. Screen space will be
+separated on rectangular Z-ordered overlapping areas - EventRecievers. One of them
+will be focused for keyboard events. Mouse events are not focused.
+    Abovementioned mechanics will be handled by InputEvent module.
+    
+Component model:
+
+    Main idea: entities are separated in order to unite common functionality
+in one class, and not to replicate abstraction hierarchy of opbects in simulated 
+reality. Typical game object in component model: GameObject instance, that has 
+collection of CustomComponent instances - user-derived classes, that customize 
+default engine Component behaviour. Components are implementing inversion of 
+control pattern, wich means, that calling is governed by engine, and
+not by user himself. Such concept, if softened by overwrriding possibilities,
+proved itself to be viable in larger game engines.
+    Both base GameObject and Component classes must be implemented by engine
+itself. Also, Reloadable module must be aware of the need to reload class 
+hierarchies, and not only one classes. For example, if in hierarchy A->B->C
+module, wich defined class B was reloaded, on it's reload all instances of classes
+B and C must also be reloaded. This is an interesting task, wich i will investigate
+right now.
