@@ -3,10 +3,11 @@
 import sfml
 
 from sfml import window
-from engine.Reloadable import reloadable, reload_module_instances
+from engine.Reloadable import reloadable
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'))
 
 SCHED_ORDER = 10
 

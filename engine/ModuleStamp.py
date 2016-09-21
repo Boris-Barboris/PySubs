@@ -5,10 +5,12 @@ import os.path
 import time
 import sfml.window
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
-import engine.IOBroker as IOBroker
-import engine.EngineConsole as EngineConsole
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'),
+    ('IOBroker', 'engine.IOBroker'),
+    ('EngineConsole', 'engine.EngineConsole'))
+
 
 def onLoad(core):
     Logging.logMessage('ModuleStamp is loading')

@@ -6,8 +6,9 @@ import sfml.graphics as graphics
 from sfml.graphics import Font
 from sfml.graphics import Text
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'))
 
 def onLoad(core):
     Logging.logMessage('TextManager is loading')

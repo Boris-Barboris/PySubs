@@ -6,9 +6,10 @@ from sfml.system import Vector2
 from engine.Reloadable import reloadable, freeze_module_instances, \
     reload_module_instances, unfreeze_module_instances
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
-import engine.IOBroker as IOBroker
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'),
+    ('IOBroker', 'engine.IOBroker'))
 
 def onLoad(core):
     Logging.logMessage('InputEvent is loading')

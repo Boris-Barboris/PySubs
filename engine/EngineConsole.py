@@ -6,9 +6,10 @@ from engine.Reloadable import reloadable
 from sfml.window import Keyboard as keyboard
 
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
-import engine.IOBroker as IOBroker
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'),
+    ('IOBroker', 'engine.IOBroker'))
 
 SCHED_ORDER = 30
 

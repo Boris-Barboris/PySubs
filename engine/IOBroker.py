@@ -4,9 +4,10 @@ import sfml
 
 from engine.Reloadable import reloadable
 
-import engine.Logging as Logging
-import engine.EngineCore as EngineCore
-import engine.WindowModule as WindowModule
+_import_modules = (
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'),
+    ('WindowModule', 'engine.WindowModule'))
 
 SCHED_ORDER = 20
 

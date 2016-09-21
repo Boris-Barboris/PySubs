@@ -11,11 +11,11 @@ from sfml.graphics import ConvexShape
 from sfml.graphics import Color
 from sfml.system import Vector2
 
-
-import engine.TextManager as TextManager
-import engine.EngineCore as EngineCore
-import engine.Logging as Logging
-import engine.WindowModule as WindowModule
+_import_modules = (
+    ('TextManager', 'engine.TextManager'),
+    ('EngineCore', 'engine.EngineCore'),
+    ('Logging', 'engine.Logging'),
+    ('WindowModule', 'engine.WindowModule'))
 
 
 SCHED_ORDER = 40

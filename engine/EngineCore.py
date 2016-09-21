@@ -10,7 +10,7 @@ from engine.Reloadable import freeze_module_instances, \
 
 # Module register and loading section
 
-loaded_modules = {}     # List of modules, currently loaded
+loaded_modules = {}     # List of engine-handled modules, currently loaded
 
 def loadModule(moduleName):
     '''Dynamically load engine module'''
@@ -23,6 +23,7 @@ def loadModule(moduleName):
         return
     try:
         mdl = importlib.import_module(moduleName)
+        handle_imports(mdl)
         loaded_modules[moduleName] = mdl
         mdl.onLoad(sys.modules[__name__])
         return
@@ -48,6 +49,7 @@ def reloadModule(moduleName):
                   ':\n' + str(ex))
         try:
             mdl = imp.reload(mdl)
+            handle_imports(mdl)
             mdl.onLoad(sys.modules[__name__])
             reload_module_instances(moduleName)
             unfreeze_module_instances(moduleName)
@@ -57,6 +59,18 @@ def reloadModule(moduleName):
     else:
         print('EngineCore: No module ' + moduleName + ' is found, loading')
         loadModule(moduleName)
+
+
+def handle_imports(module):
+    imports = getattr(module, '_import_modules', None)
+    if imports:
+        for pair in imports:
+            if pair[1] == 'engine.EngineCore':
+                setattr(module, pair[0], sys.modules[__name__])
+                continue
+            if not pair[1] in loaded_modules:
+                loadModule(pair[1])
+            setattr(module, pair[0], loaded_modules[pair[1]])
 
 # Scheduling and execution section
 
