@@ -2,11 +2,25 @@
 
 import sys
 import weakref
+import inspect
 
 module_heap = {}
         
 
 def reloadable(cls):
+    # first let's check if cls is derived from another reloadable
+    desired_parents = []
+    for base_class in cls.__bases__:
+        if base_class.__name__ == 'Reloadable':
+            # we are indeed deriving from another reloadable
+            # let's redefine cls to derive reloadable's handled class
+            desired_parent = base_class._Reloadable__cls
+            desired_parents.append(desired_parent)
+        else:
+            desired_parents.append(base_class)
+    # now let's redefine cls as class, derived from unproxied classes
+    cls = type(cls.__name__, tuple(desired_parents), dict(cls.__dict__))
+
     class MetaReloadable(type):
         def __getattr__(_cls, name):
             return cls.__getattribute__(cls, name)
@@ -14,13 +28,13 @@ def reloadable(cls):
     '''Decorate class in order to make it's instances reloadable'''
     class Reloadable(metaclass=MetaReloadable):
         '''Proxy for reloadable class'''
-        _cls = cls
+        __cls = cls
 
         def __init__(self, *args, **kwargs):
             # hold wrapped class object in class attribute
             _cls = Reloadable._cls
             # allocate and initialize wrapped instance
-            self.__obj = _cls.__new__(_cls)
+            self.__obj = __cls.__new__(__cls)
             self.__obj.__init__(*args, **kwargs)
             # Let's register it in global hash
             self.__register()
@@ -28,7 +42,7 @@ def reloadable(cls):
         def __init__(self, _id, *args, **kwargs):
             '''Initialize using overridden id'''
             # hold wrapped class object in class attribute
-            _cls = Reloadable._cls
+            _cls = Reloadable.__cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
             self.__obj.__init__(*args, **kwargs)
@@ -38,7 +52,7 @@ def reloadable(cls):
         @classmethod
         def _persistent(cls, _id, *args, **kwargs):
             '''Get persistent instance from id or initialize new one.'''
-            _cls = Reloadable._cls
+            _cls = Reloadable.__cls
             mdl = _cls.__module__
             if mdl in module_heap:
                 # try to find old proxy instance with same id
@@ -66,10 +80,10 @@ def reloadable(cls):
 
         def _reload_instance(self):
             '''Reload __obj and __class form new module'''
-            _cls = Reloadable._cls
+            _cls = Reloadable.__cls
             mdl = sys.modules[_cls.__module__]
             new_rld_cls = getattr(mdl, _cls.__name__)
-            new_cls = new_rld_cls._cls
+            new_cls = new_rld_cls.__cls
             new_obj = new_cls.__new__(new_cls)
             # use default constructor (wich is required)
             new_obj.__init__()
@@ -82,38 +96,36 @@ def reloadable(cls):
                     pass
             # update wrapper class and instance
             self.__obj = new_obj
-            Reloadable._cls = new_cls
+            Reloadable.__cls = new_cls
             self.__class__ = new_rld_cls
 
         def __register(self, _id = None):
             '''register instance in global map'''
-            _cls = Reloadable._cls
-            mdl = _cls.__module__
+            _cls = Reloadable.__cls
+            # since we support inheritance, we need to build a set of modules,
+            # that are used in this class hierarchy
+            module_set = set()
+            for base_class in inspect.getmro(_cls):
+                if base_class != object:
+                    module_set.add(base_class.__module__)
+            for mdl in module_set:
+                # subscribe on all base class modules reloading
+                self.__do_register(mdl, _id)
+
+        def __do_register(self, mdl_name, _id):
             if not _id:
                 _id = id(self)
-            if mdl in module_heap:
-                id_hash = module_heap[mdl]
+            if mdl_name in module_heap:
+                id_hash = module_heap[mdl_name]
                 id_hash[_id] = self
             else:
                 new_dict = weakref.WeakValueDictionary()
                 new_dict[_id] = self
-                module_heap[mdl] = new_dict
-
-        def __unregister(self):
-            '''unregister instance from global map'''
-            _cls = Reloadable._cls
-            mdl = _cls.__module__
-            if mdl in module_heap:
-                id_hash = module_heap[mdl]
-                del id_hash[id(self)]
-
-        def __del__(self):
-            self.__unregister()
-            del self.__obj
+                module_heap[mdl_name] = new_dict
 
         # string representation should be fixed
         def __repr__(self):
-            _cls = Reloadable._cls
+            _cls = Reloadable.__cls
             return '<' + reloadable.__module__ + '.reloadable(' + \
                 _cls.__module__ + '.' + _cls.__name__ + ') object at ' + \
                 str(hex(id(self))) + '>'
@@ -156,6 +168,11 @@ class TestClass:
     def _reload(self, other):
         self.a = other.a
 
+@reloadable
+class ClassB(TestClass):
+    def __init__(self, num = 8):
+        self.a = num
+
 
 # tests
 
@@ -174,3 +191,6 @@ def testReloadable():
     print(a)
     print(a._get())
     a.prunt()
+    b = ClassB._persistent(1338, 9)
+    print(b)
+    b.prunt()

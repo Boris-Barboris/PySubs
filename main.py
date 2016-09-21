@@ -9,4 +9,4 @@ import engine.testmodules.font_testing as font_testing
 #EngineCore.testWindowModule()
 #Reloadable.testReloadable()
 font_testing.text_test1()
-exit()
+#exit()
