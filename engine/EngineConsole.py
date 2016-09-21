@@ -2,36 +2,26 @@
 
 import sfml.window
 
-from engine.Reloadable import reloadable, freeze_module_instances, \
-    reload_module_instances, unfreeze_module_instances
+from engine.Reloadable import reloadable
 from sfml.window import Keyboard as keyboard
 
 
-Logging = None
-EngineCore = None
-IOBroker = None
+import engine.Logging as Logging
+import engine.EngineCore as EngineCore
+import engine.IOBroker as IOBroker
 
 SCHED_ORDER = 30
 
 def onLoad(core):
-    global EngineCore
-    EngineCore = core
-    global Logging
-    Logging = EngineCore.loaded_modules['engine.Logging']
-    global IOBroker
-    IOBroker = EngineCore.loaded_modules['engine.IOBroker']
     Logging.logMessage('EngineConsole is loading')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
     IOBroker.register_handler(keyboard_handler, sfml.window.KeyEvent)
     # now extensions
-    reload_module_instances(__name__)
     global extensionCommands
     extensionCommands = ExtentionCommands._persistent('EngineConsole.extensionCommands')
-    unfreeze_module_instances(__name__)
 
 def onUnload():
     Logging.logMessage('EngineConsole is unloading')
-    freeze_module_instances(__name__)
     IOBroker.unregister_handler(keyboard_handler, sfml.window.KeyEvent)
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 

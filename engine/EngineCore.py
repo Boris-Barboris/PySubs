@@ -5,6 +5,9 @@ import imp
 import traceback
 import sys
 
+from engine.Reloadable import freeze_module_instances, \
+    unfreeze_module_instances, reload_module_instances
+
 # Module register and loading section
 
 loaded_modules = {}     # List of modules, currently loaded
@@ -38,6 +41,7 @@ def reloadModule(moduleName):
         print('EngineCore: Reloading module ' + moduleName)
         mdl = loaded_modules[moduleName]
         try:
+            freeze_module_instances(moduleName)
             mdl.onUnload()
         except BaseException as ex:
             print('Error while unloading module ' + moduleName + 
@@ -45,6 +49,8 @@ def reloadModule(moduleName):
         try:
             mdl = imp.reload(mdl)
             mdl.onLoad(sys.modules[__name__])
+            reload_module_instances(moduleName)
+            unfreeze_module_instances(moduleName)
         except BaseException as ex:
             print('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))

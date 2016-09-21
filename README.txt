@@ -103,5 +103,4 @@ proved itself to be viable in larger game engines.
 itself. Also, Reloadable module must be aware of the need to reload class 
 hierarchies, and not only one classes. For example, if in hierarchy A->B->C
 module, wich defined class B was reloaded, on it's reload all instances of classes
-B and C must also be reloaded. This is an interesting task, wich i will investigate
-right now.
+B and C must also be reloaded. Reloadable decorator is graciously handling this problem.

@@ -5,20 +5,12 @@ import os.path
 import time
 import sfml.window
 
-Logging = None
-EngineCore = None
-IOBroker = None
-EngineConsole = None
+import engine.Logging as Logging
+import engine.EngineCore as EngineCore
+import engine.IOBroker as IOBroker
+import engine.EngineConsole as EngineConsole
 
 def onLoad(core):
-    global EngineCore
-    EngineCore = core
-    global Logging
-    Logging = EngineCore.loaded_modules['engine.Logging']
-    global IOBroker
-    IOBroker = EngineCore.loaded_modules['engine.IOBroker']
-    global EngineConsole
-    EngineConsole = EngineCore.loaded_modules['engine.EngineConsole']
     Logging.logMessage('ModuleStamp is loading')
     IOBroker.register_handler(handle_focus, sfml.window.FocusEvent)
     EngineConsole.register_extension(toggle_command, 'stamp')
@@ -28,7 +20,6 @@ def onUnload():
     Logging.logMessage('ModuleStamp is unloading')
     EngineConsole.unregister_extension(toggle_command, 'stamp')
     IOBroker.unregister_handler(handle_focus, sfml.window.FocusEvent)
-    pass
 
 
 _active = True

@@ -6,14 +6,10 @@ import sfml.graphics as graphics
 from sfml.graphics import Font
 from sfml.graphics import Text
 
-Logging = None
-EngineCore = None
+import engine.Logging as Logging
+import engine.EngineCore as EngineCore
 
 def onLoad(core):
-    global EngineCore
-    EngineCore = core
-    global Logging
-    Logging = EngineCore.loaded_modules['engine.Logging']
     Logging.logMessage('TextManager is loading')
     load_font('calibri.ttf')
 

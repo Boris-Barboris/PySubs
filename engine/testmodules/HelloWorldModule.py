@@ -11,23 +11,16 @@ from sfml.graphics import ConvexShape
 from sfml.graphics import Color
 from sfml.system import Vector2
 
-Logging = None
-EngineCore = None
-WindowModule = None
-TextManager = None
+
+import engine.TextManager as TextManager
+import engine.EngineCore as EngineCore
+import engine.Logging as Logging
+import engine.WindowModule as WindowModule
+
 
 SCHED_ORDER = 40
 
 def onLoad(core):
-    global EngineCore
-    EngineCore = core
-    global Logging
-    Logging = EngineCore.loaded_modules['engine.Logging']
-    global WindowModule
-    WindowModule = EngineCore.loaded_modules['engine.WindowModule']
-    global TextManager
-    TextManager = EngineCore.loaded_modules['engine.TextManager']
-
     Logging.logMessage('HelloWorldModule is loading')
     
     fnt = TextManager.load_font('calibri.ttf')
