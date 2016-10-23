@@ -40,6 +40,9 @@
     <Compile Include="engine\Reloadable.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine\SceneComposers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine\testmodules\font_testing.py">
       <SubType>Code</SubType>
     </Compile>
@@ -66,6 +69,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\WindowModule.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\WorldComposer.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\__init__.py">

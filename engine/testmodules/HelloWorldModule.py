@@ -63,6 +63,7 @@ clr = sfml.graphics.Color(255, 255, 255)
 style = Text.REGULAR
 view = None
 
+
 # FPS
 avg_fps = 60.0
 time_hp = time.clock()
