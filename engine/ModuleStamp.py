@@ -34,6 +34,7 @@ def initialize():
 
 def handle_focus(event, wnd):
     if _active and event.gained:
+        Logging.logMessage('ModuleStamp handling files')
         # let's loop over loaded modules and reload those with new file stamps
         for mdl in EngineCore.loaded_modules:
             new_time = time.ctime(os.path.getmtime(EngineCore.loaded_modules[mdl].__file__))
