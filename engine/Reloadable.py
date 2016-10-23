@@ -18,12 +18,20 @@ def reloadable(cls):
             desired_parents.append(desired_parent)
         else:
             desired_parents.append(base_class)
+    
     # now let's redefine cls as class, derived from unproxied classes
+    # there can be metaclasses other than type, so we'll probably unhardcode 
+    # this bit later
     cls = type(cls.__name__, tuple(desired_parents), dict(cls.__dict__))
 
     class MetaReloadable(type):
         def __getattr__(_cls, name):
             return cls.__getattribute__(cls, name)
+        # we need to handle user inheriting reloadable classes without
+        # decorator, so there are no inconsistencies in the class hierarchy
+        def __new__(self, name, bases, fields):
+            r = type.__new__(self, name, bases, fields)
+            return r
 
     '''Decorate class in order to make it's instances reloadable'''
     class Reloadable(metaclass=MetaReloadable):
@@ -168,7 +176,6 @@ class TestClass:
     def _reload(self, other):
         self.a = other.a
 
-@reloadable
 class ClassB(TestClass):
     def __init__(self, num = 8):
         self.a = num
