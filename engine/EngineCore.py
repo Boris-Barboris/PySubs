@@ -23,12 +23,14 @@ def loadModule(moduleName):
         return
     try:
         mdl = importlib.import_module(moduleName)
-        handle_imports(mdl)
         loaded_modules[moduleName] = mdl
+        handle_imports(mdl)
         mdl.onLoad(sys.modules[__name__])
         return
     except BaseException as ex:
         print('Error while loading module ' + moduleName + ':\n' + str(ex))
+        loaded_modules.pop(moduleName, None)
+        traceback.print_exc()
         raise
         
 
@@ -47,6 +49,7 @@ def reloadModule(moduleName):
         except BaseException as ex:
             print('Error while unloading module ' + moduleName + 
                   ':\n' + str(ex))
+            traceback.print_exc()
         try:
             mdl = imp.reload(mdl)
             handle_imports(mdl)
@@ -56,6 +59,7 @@ def reloadModule(moduleName):
         except BaseException as ex:
             print('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))
+            traceback.print_exc()
     else:
         print('EngineCore: No module ' + moduleName + ' is found, loading')
         loadModule(moduleName)

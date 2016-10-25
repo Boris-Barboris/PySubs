@@ -1,15 +1,19 @@
 #   Copyright Alexander Baranin 2016
 
-# Scene - set of objects, and rues required to render them
+# Scene - set of visible objects and rules required to render them
 # We'll divide scene on three layers:
-#   * WorldLayer - layer where entities, that belong to game world are rendered.
-#       Scale of objects is bound to objects actual positions.
-#   * OverlayLayer - layer of pseudo-UI objects, that is rendered on top of game
-#       objects, but with respect to screen size.
+#
+#   * WorldLayer - layer where entities, that belong to game 
+#     world are rendered. Scale of objects is bound to 
+#     objects actual positions.
+#
+#   * OverlayLayer - layer of pseudo-UI objects, that is 
+#     rendered on top of game objects, but with respect to screen size.
+#
 #   * UILayer - screen-space oriented layer for UI elements.
 #
 # This module defines prototypes for each of those layer managers and stores
-# and calls singletons of such managers.
+# and calls singletons of respective managers.
 
 from engine.Reloadable import reloadable
 
@@ -17,7 +21,7 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'))
 
-SCHED_ORDER = 40
+SCHED_ORDER = 50
 
 def onLoad(core):
     Logging.logMessage('SceneComposer is loading')

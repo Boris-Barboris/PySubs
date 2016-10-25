@@ -40,20 +40,28 @@ def reloadable(cls):
 
         def __init__(self, *args, **kwargs):
             # hold wrapped class object in class attribute
-            _cls = Reloadable._cls
+            _cls = Reloadable.__cls
             # allocate and initialize wrapped instance
-            self.__obj = __cls.__new__(__cls)
-            self.__obj.__init__(*args, **kwargs)
+            self.__obj = _cls.__new__(_cls)
+            rld_cntr = getattr(self.__obj, '__init_rld__', None)
+            if rld_cntr:
+                self.__obj.__init_rld__(self, *args, **kwargs)
+            else:
+                self.__obj.__init__(*args, **kwargs)
             # Let's register it in global hash
             self.__register()
 
-        def __init__(self, _id, *args, **kwargs):
+        def _init_id(self, _id, *args, **kwargs):
             '''Initialize using overridden id'''
             # hold wrapped class object in class attribute
             _cls = Reloadable.__cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
-            self.__obj.__init__(*args, **kwargs)
+            rld_cntr = getattr(self.__obj, '__init_rld__', None)
+            if rld_cntr:
+                self.__obj.__init_rld__(self, *args, **kwargs)
+            else:
+                self.__obj.__init__(*args, **kwargs)
             # Let's register it in global hash
             self.__register(_id)
 
@@ -68,7 +76,9 @@ def reloadable(cls):
                 if old_obj:
                     return old_obj
             # no old object, let's create one
-            return Reloadable(_id, *args, **kwargs)
+            obj = Reloadable.__new__(Reloadable)
+            obj._init_id(_id, *args, **kwargs)
+            return obj
 
         # Let's provide easy attribute lookup without get()
         def __getattr__(self, name):
@@ -86,6 +96,11 @@ def reloadable(cls):
             '''Get managed object explicitly'''
             return self.__obj
 
+        @classmethod
+        def _get_cls(self):
+            '''Get managed class explicitly'''
+            return self.__cls
+
         def _reload_instance(self):
             '''Reload __obj and __class form new module'''
             _cls = Reloadable.__cls
@@ -94,9 +109,13 @@ def reloadable(cls):
             new_cls = new_rld_cls.__cls
             new_obj = new_cls.__new__(new_cls)
             # use default constructor (wich is required)
-            new_obj.__init__()
+            rld_cntr = getattr(new_obj, '__init_rld__', None)
+            if rld_cntr:
+                new_obj.__init_rld__(self)
+            else:
+                new_obj.__init__()
             # check if there is reload method
-            reload_method = getattr(new_obj, '_reload')
+            reload_method = getattr(new_obj, '_reload', None)
             if reload_method:
                 try:
                     new_obj._reload(self.__obj)
@@ -144,7 +163,7 @@ def reloadable(cls):
 def reload_module_instances(mdl_name):
     if mdl_name in module_heap:
         dct = module_heap[mdl_name]
-        for id in dct:
+        for id in list(dct):
             rldbl = dct[id]
             rldbl._reload_instance()
             

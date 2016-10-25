@@ -77,6 +77,18 @@
     <Compile Include="engine\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="game\GameLogic.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\start.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\Submarine.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="main.py">
       <SubType>Code</SubType>
     </Compile>
@@ -87,6 +99,7 @@
   <ItemGroup>
     <Folder Include="engine\" />
     <Folder Include="engine\testmodules\" />
+    <Folder Include="game\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />

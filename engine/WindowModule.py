@@ -58,6 +58,9 @@ class Window:
     def is_fullscreen(self):
         return self._fullscreen
 
+    def size(self):
+        return self.wnd_handle.size
+
     def set_fullscreen(self, val):
         if val != self._fullscreen:
             if val:
