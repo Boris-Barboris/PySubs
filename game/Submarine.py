@@ -52,11 +52,12 @@ class SubmarineModel(WorldComposer.WorldRenderable):
     def __init_rld__(self, proxy, sub = None):
         super(SubmarineModel._get_cls(), self).__init_rld__(proxy, sub)
         # primitives:
+
         # hull
         hull = ConvexShape()
         hull.texture = None
-        hull.fill_color = Color(100, 100, 100, 60)
-        hull.outline_color = Color(255, 255, 255, 255)
+        hull.fill_color = Color(100, 100, 100, 80)
+        hull.outline_color = Color(0, 0, 0, 60)
         hull.outline_thickness = 1.0
         points = [
             (0, -30.0),
@@ -66,16 +67,17 @@ class SubmarineModel(WorldComposer.WorldRenderable):
             (9.3, -21.0),
             (10, -17.0),
             (10, 40.0),
-            (8.5, 45.0),
-            (5, 52.0),
+            (9, 45.0),
+            (5, 52.5),
             (0, 60),
             ]
-        # hull is symmetric
+        # hull is symmetric:
         for i in range(len(points) - 1, 0, -1):
             points.append((-points[i][0], points[i][1]))
         hull.point_count = len(points)
         for i in range(0, len(points)):
             hull.set_point(i, points[i])
+        hull.origin = (0.0, 10.0)
         self.hull = hull
 
     def OnWorldRender(self, wnd):

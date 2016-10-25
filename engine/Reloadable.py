@@ -131,13 +131,14 @@ def reloadable(cls):
             _cls = Reloadable.__cls
             # since we support inheritance, we need to build a set of modules,
             # that are used in this class hierarchy
-            module_set = set()
-            for base_class in inspect.getmro(_cls):
-                if base_class != object:
-                    module_set.add(base_class.__module__)
-            for mdl in module_set:
+            #module_set = set()
+            #for base_class in inspect.getmro(_cls):
+            #    if base_class != object:
+            #        module_set.add(base_class.__module__)
+            #for mdl in module_set:
                 # subscribe on all base class modules reloading
-                self.__do_register(mdl, _id)
+                    #self.__do_register(mdl, _id)
+            self.__do_register(_cls.__module__, _id)
 
         def __do_register(self, mdl_name, _id):
             if not _id:

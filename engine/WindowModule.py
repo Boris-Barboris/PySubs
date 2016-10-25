@@ -32,7 +32,7 @@ class Window:
     '''Window abstraction in the engine'''
     background_color = (35, 35, 35)
     wnd_size = (800, 500)
-    wnd_name = 'BoobsEngine window'
+    wnd_name = 'PySubs'
     vsync = True
 
     def __init__(self, name = wnd_name, 

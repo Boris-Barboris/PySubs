@@ -35,7 +35,7 @@ class Camera:
     def __init__(self):
         self.position = (0.0, 0.0)
         # how many game units in 1 pixel:
-        self.scale = 0.4
+        self.scale = 0.16
 
     def _reload(self, other):
         self.position = other.position
