@@ -85,6 +85,7 @@ class Window:
         self.wnd_handle.clear(sfml.Color(*self.background_color))
 
     def _reload(self, other):
+        self.__init__()
         self.set_fullscreen(other.is_fullscreen())
         # preserve window size
         self.wnd_size = other.wnd_size

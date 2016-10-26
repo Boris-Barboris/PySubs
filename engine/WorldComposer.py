@@ -8,6 +8,7 @@ from engine.GameObject import Component
 
 from sfml.graphics import View
 from sfml.graphics import Rectangle
+from sfml.system import Vector2
 
 import weakref
 
@@ -33,7 +34,7 @@ composer = None
 @reloadable
 class Camera:
     def __init__(self):
-        self.position = (0.0, 0.0)
+        self.position = Vector2(0, 0)
         # how many game units in 1 pixel:
         self.scale = 0.1
 
@@ -52,8 +53,8 @@ class WorldComposer:
         wnd_size = wnd.size()
         # create view from camera and assign it to window
         view = View(Rectangle(
-            (self.camera.position[0] - wnd_size.x * 0.5 * self.camera.scale,
-             self.camera.position[1] - wnd_size.y * 0.5 * self.camera.scale),
+            (self.camera.position.x - wnd_size.x * 0.5 * self.camera.scale,
+             self.camera.position.y - wnd_size.y * 0.5 * self.camera.scale),
             (wnd_size.x * self.camera.scale, wnd_size.y * self.camera.scale)))
         wnd.wnd_handle.view = view
         # iterale all worldRenderables

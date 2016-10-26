@@ -74,6 +74,7 @@ class ExtentionCommands:
         self.extensions = {}
 
     def _reload(self, other):
+        self.__init__()
         self.extensions.update(other.extensions)
 
 extensionCommands = None

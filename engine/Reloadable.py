@@ -109,12 +109,6 @@ def reloadable(cls):
             new_rld_cls = getattr(mdl, _cls.__name__)
             new_cls = new_rld_cls.__cls
             new_obj = new_cls.__new__(new_cls)
-            # use default constructor (wich is required)
-            rld_cntr = getattr(new_obj, '__init_rld__', None)
-            if rld_cntr:
-                new_obj.__init_rld__(self)
-            else:
-                new_obj.__init__()
             # check if there is reload method
             reload_method = getattr(new_obj, '_reload', None)
             if reload_method:

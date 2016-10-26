@@ -41,6 +41,7 @@ class EventHandlerMap:
         self._handlers = {}
 
     def _reload(self, other):
+        self.__init__()
         for event in other._handlers:
             if event in self._handlers:
                 self._handlers[event].extend(other._handlers[event])

@@ -13,7 +13,8 @@ from sfml.system import Vector2
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
-    ('WorldComposer', 'engine.WorldComposer'))
+    ('WorldComposer', 'engine.WorldComposer'),
+    ('ShipDynamics', 'game.ShipDynamics'))
 
 _subscribe_modules = [
     'engine.WorldComposer']
@@ -23,10 +24,10 @@ from engine.EngineCore import handle_imports
 handle_imports(sys.modules[__name__])
 
 def onLoad(core):
-    Logging.logMessage('submarine module is loading')
+    Logging.logMessage('Submarine module is loading')
 
 def onUnload():
-    Logging.logMessage('submarine module is unloading')
+    Logging.logMessage('Submarine module is unloading')
 
 
 @reloadable
@@ -34,22 +35,32 @@ class PlayerSubmarine(GameObject):
     def __init_rld__(self, proxy):
         super(PlayerSubmarine._get_cls(), self).__init__()
         Logging.logMessage('Creating player submarine')
-        self.position = (0.0, 0.0)
+        self.position = Vector2(0.0, 0.0)
         self.rotation = 0.0
         self.model = SubmarineModel()
         self.addComponent(self.model, proxy)
+        self.dynamics = ShipDynamics.ShipDynamics()
+        self.addComponent(self.dynamics, proxy)
+        self.ctrl_state = ShipDynamics.ShipCtrlState()
+        self.ctrl_state.throttle = 1.0
+        self.ctrl_state.rudder = 0.0
         
     def run(self, dt):
         # game physics here
-        self.model.screw_rot += dt * 3.0
+        self.dynamics.run(dt)
+        self.model.screw_rot += dt * 10.0 * self.dynamics.engine_throttle
         if (self.model.screw_rot > 2 * math.pi):
             self.model.screw_rot -= 2 * math.pi
 
     def _reload(self, other):
         super(PlayerSubmarine._get_cls(), self)._reload(other)
         self.model = other.model
+        self.dynamics = other.dynamics
         self.position = other.position
         self.rotation = other.rotation
+        self.ctrl_state = other.ctrl_state
+        self.ctrl_state.throttle = 1.0
+        self.ctrl_state.rudder = 0.0
 
 
 # since we need to derive from WorldRenderable, we'll
@@ -134,6 +145,7 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         self.screw_rot = 0.0    # screw rotation                    
 
     def _reload(self, other):
+        self.__init__()
         super(SubmarineModel._get_cls(), self)._reload(other)
         self.screw_rot = other.screw_rot
 
