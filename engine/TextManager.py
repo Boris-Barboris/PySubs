@@ -2,6 +2,7 @@
 
 import sfml
 import sfml.graphics as graphics
+import traceback
 
 from sfml.graphics import Font
 from sfml.graphics import Text
@@ -32,3 +33,4 @@ def load_font(font_name):
     except IOError as ex:
         Logging.logMessage('cannot load font ' + font_name + 
                            ':\n' + str(ex))
+        traceback.print_exc()

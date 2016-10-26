@@ -35,7 +35,7 @@ class Camera:
     def __init__(self):
         self.position = (0.0, 0.0)
         # how many game units in 1 pixel:
-        self.scale = 0.3
+        self.scale = 0.1
 
     def _reload(self, other):
         self.position = other.position
@@ -66,9 +66,9 @@ class WorldComposer:
 
 @reloadable
 class WorldRenderable(Component):
-    def __init_rld__(self, proxy, owner = None):
+    def __init__(self, owner = None):
         super(WorldRenderable._get_cls(), self).__init__(owner)
-        composer.components.add(proxy)
+        composer.components.add(self)
 
     def OnWorldRender(self, wnd):
         pass

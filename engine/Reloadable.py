@@ -3,6 +3,7 @@
 import sys
 import weakref
 import inspect
+import traceback
 
 module_heap = {}
         
@@ -120,7 +121,7 @@ def reloadable(cls):
                 try:
                     new_obj._reload(self.__obj)
                 except Exception:
-                    pass
+                    traceback.print_exc()
             # update wrapper class and instance
             self.__obj = new_obj
             Reloadable.__cls = new_cls

@@ -1,6 +1,7 @@
 ﻿#   Copyright Alexander Baranin 2016
 
 import sfml.window
+import traceback
 
 from engine.Reloadable import reloadable
 from sfml.window import Keyboard as keyboard
@@ -54,6 +55,7 @@ def run():
                 extensionCommands.extensions[cmd](cmds)
         except Exception as ex:
             print('Input error')
+            traceback.print_exc()
     _active = False
     Logging.logMessage('Leaving engine console')
 
@@ -72,7 +74,7 @@ class ExtentionCommands:
         self.extensions = {}
 
     def _reload(self, other):
-        self.extensions.update(other)
+        self.extensions.update(other.extensions)
 
 extensionCommands = None
 

@@ -13,6 +13,10 @@ class GameObject:
         self.components.append(cmp)
         cmp.owner = self
 
+    def addComponent(self, cmp, proxy):
+        self.components.append(cmp)
+        cmp.owner = proxy
+
     def removeComponent(self, cmp):
         self.components.remove(cmp)
         cmp.owner = None
