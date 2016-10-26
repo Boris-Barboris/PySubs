@@ -14,6 +14,9 @@ _import_modules = (
     ('Logging', 'engine.Logging'),
     ('WorldComposer', 'engine.WorldComposer'))
 
+_subscribe_modules = [
+    'engine.WorldComposer']
+
 from engine.EngineCore import handle_imports
 
 handle_imports(sys.modules[__name__])
@@ -31,7 +34,7 @@ class PlayerSubmarine(GameObject):
         super(PlayerSubmarine._get_cls(), self).__init__()
         Logging.logMessage('Creating player submarine')
         self.position = (0.0, 0.0)
-        self.rotation = 0.0
+        self.rotation = 90.0
         mdl = SubmarineModel(proxy)
         self.addComponent(mdl)
         
@@ -56,7 +59,7 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         # hull
         hull = ConvexShape()
         hull.texture = None
-        hull.fill_color = Color(100, 100, 100, 80)
+        hull.fill_color = Color(60, 60, 60, 255)
         hull.outline_color = Color(0, 0, 0, 60)
         hull.outline_thickness = 1.0
         points = [
@@ -67,9 +70,9 @@ class SubmarineModel(WorldComposer.WorldRenderable):
             (9.3, -21.0),
             (10, -17.0),
             (10, 40.0),
-            (9, 45.0),
-            (5, 52.5),
-            (0, 60),
+            (8, 50.0),
+            (5, 58),
+            (0, 70),
             ]
         # hull is symmetric:
         for i in range(len(points) - 1, 0, -1):
@@ -77,7 +80,7 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         hull.point_count = len(points)
         for i in range(0, len(points)):
             hull.set_point(i, points[i])
-        hull.origin = (0.0, 10.0)
+        hull.origin = (0.0, 15.0)
         self.hull = hull
 
     def OnWorldRender(self, wnd):

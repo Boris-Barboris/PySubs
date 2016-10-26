@@ -24,7 +24,7 @@ def onLoad(core):
     composer = WorldComposer._persistent('WorldComposer.composer')
     Composers.composers.WorldLayer = composer
 
-def onUnload(core):
+def onUnload():
     Logging.logMessage('WorldComposer is unloading')
 
 
@@ -35,7 +35,7 @@ class Camera:
     def __init__(self):
         self.position = (0.0, 0.0)
         # how many game units in 1 pixel:
-        self.scale = 0.16
+        self.scale = 0.3
 
     def _reload(self, other):
         self.position = other.position

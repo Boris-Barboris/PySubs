@@ -11,6 +11,7 @@ from engine.Reloadable import freeze_module_instances, \
 # Module register and loading section
 
 loaded_modules = {}     # List of engine-handled modules, currently loaded
+module_subscriptions = {}   # hash of module reloading subscriptions
 
 def loadModule(moduleName):
     '''Dynamically load engine module'''
@@ -56,6 +57,10 @@ def reloadModule(moduleName):
             mdl.onLoad(sys.modules[__name__])
             reload_module_instances(moduleName)
             unfreeze_module_instances(moduleName)
+            # now handle subscriptions
+            if moduleName in module_subscriptions:
+                for subscriber in module_subscriptions[moduleName]:
+                    reloadModule(subscriber)
         except BaseException as ex:
             print('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))
@@ -75,6 +80,14 @@ def handle_imports(module):
             if not pair[1] in loaded_modules:
                 loadModule(pair[1])
             setattr(module, pair[0], loaded_modules[pair[1]])
+    subscriptions = getattr(module, '_subscribe_modules', None)
+    if subscriptions:
+        for mdl_name in subscriptions:
+            if mdl_name in loaded_modules:
+                if mdl_name in module_subscriptions:
+                    module_subscriptions[mdl_name].add(module.__name__)
+                else:
+                    module_subscriptions[mdl_name] = { module.__name__ }
 
 # Scheduling and execution section
 
