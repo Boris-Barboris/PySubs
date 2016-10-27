@@ -21,7 +21,6 @@ _import_modules = (
 def onLoad(core):
     Logging.logMessage('WorldComposer is loading')
     global composer
-    camera = Camera()
     composer = WorldComposer._persistent('WorldComposer.composer')
     Composers.composers.WorldLayer = composer
 
@@ -47,23 +46,30 @@ class WorldComposer:
     def __init__(self):
         self.components = weakref.WeakSet()
         self.camera = Camera()
+        self.view = View()
 
     def run(self):
         wnd = WindowModule.app_window
         wnd_size = wnd.size()
         # create view from camera and assign it to window
-        view = View(Rectangle(
-            (self.camera.position.x - wnd_size.x * 0.5 * self.camera.scale,
-             self.camera.position.y - wnd_size.y * 0.5 * self.camera.scale),
-            (wnd_size.x * self.camera.scale, wnd_size.y * self.camera.scale)))
-        wnd.wnd_handle.view = view
+        self.view = self.get_view(self.camera, wnd_size)
+        wnd.wnd_handle.view = self.view
         # iterale all worldRenderables
         for c in self.components:
             if c.active():
-                c.OnWorldRender(wnd)
+                c.OnWorldRender(wnd, self.camera)
+
+    def get_view(self, camera, wnd_size):
+        return View(Rectangle(
+            (self.camera.position.x - wnd_size.x * 0.5 * self.camera.scale,
+             self.camera.position.y - wnd_size.y * 0.5 * self.camera.scale),
+            (wnd_size.x * self.camera.scale, wnd_size.y * self.camera.scale)))
 
     def _reload(self, other):
+        self.__init__()
         self.components = other.components
+        self.camera = other.camera
+        self.view = other.view
 
 @reloadable
 class WorldRenderable(Component):
@@ -71,5 +77,5 @@ class WorldRenderable(Component):
         super(WorldRenderable._get_cls(), self).__init__(owner)
         composer.components.add(self)
 
-    def OnWorldRender(self, wnd):
+    def OnWorldRender(self, wnd, camera):
         pass

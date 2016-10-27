@@ -57,7 +57,7 @@ class ShipDynamics(Component):
         v_abs = math.sqrt(v2)
         vel_dir = normalize(self.velocity)
 
-        hull_angle = dgr2rad(self.owner.rotation - 90.0)
+        hull_angle = dgr2rad(self.owner.transform.lrotation - 90.0)
         vel_angle = vecangle(vel_dir)
         AoA = hull_angle - vel_angle
         right_vec = Vector2(-vel_dir.y, vel_dir.x)
@@ -86,5 +86,5 @@ class ShipDynamics(Component):
         # integration
         self.angvel += dt * (drag_torque + rudder_torque) / self.moi
         self.velocity += (drag + thrust_vec + lift) * dt / self.mass
-        self.owner.position += self.velocity * dt
-        self.owner.rotation += rad2dgr(dt * self.angvel)
+        self.owner.transform.lrotate(rad2dgr(dt * self.angvel))
+        self.owner.transform.ltranslate(self.velocity * dt)

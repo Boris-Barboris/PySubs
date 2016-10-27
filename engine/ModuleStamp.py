@@ -20,7 +20,7 @@ def onLoad(core):
     
 def onUnload():
     Logging.logMessage('ModuleStamp is unloading')
-    EngineConsole.unregister_extension(toggle_command, 'stamp')
+    EngineConsole.unregister_extension('stamp')
     IOBroker.unregister_handler(handle_focus, sfml.window.FocusEvent)
 
 
@@ -35,7 +35,7 @@ def initialize():
 
 def handle_focus(event, wnd):
     if _active and event.gained:
-        Logging.logMessage('ModuleStamp handling files')
+        Logging.logMessage('ModuleStamp checking files')
         # let's loop over loaded modules and reload those with new file stamps
         for mdl in EngineCore.loaded_modules:
             new_time = time.ctime(os.path.getmtime(EngineCore.loaded_modules[mdl].__file__))

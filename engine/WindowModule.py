@@ -58,6 +58,9 @@ class Window:
     def is_fullscreen(self):
         return self._fullscreen
 
+    def map_coords_to_pixel(self, point, view = None):
+        return self.wnd_handle.map_coords_to_pixel(point, view)
+
     def size(self):
         return self.wnd_handle.size
 

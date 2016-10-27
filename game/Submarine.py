@@ -6,18 +6,22 @@ import sys
 import math
 
 from engine.GameObject import *
+from engine.HTransformable import HTransformable
 
 from sfml.graphics import *
-from sfml.system import Vector2
+from sfml.system import *
 
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('WorldComposer', 'engine.WorldComposer'),
-    ('ShipDynamics', 'game.ShipDynamics'))
+    ('OverlayComposer', 'engine.OverlayComposer'),
+    ('ShipDynamics', 'game.ShipDynamics'),
+    ('OverlayLabels', 'game.OverlayLabels'))
 
 _subscribe_modules = [
-    'engine.WorldComposer']
+    'engine.WorldComposer',
+    'engine.OverlayComposer']
 
 from engine.EngineCore import handle_imports
 
@@ -35,19 +39,24 @@ class PlayerSubmarine(GameObject):
     def __init_rld__(self, proxy):
         super(PlayerSubmarine._get_cls(), self).__init__()
         Logging.logMessage('Creating player submarine')
-        self.position = Vector2(0.0, 0.0)
-        self.rotation = 0.0
+        self.transform = HTransformable()
+        self.transform.lrotation = 0.0
+        self.transform.lposition = Vector2(0.0, 0.0)
         self.model = SubmarineModel()
+        self.model.transform.parent = self.transform
         self.addComponent(self.model, proxy)
         self.dynamics = ShipDynamics.ShipDynamics()
         self.addComponent(self.dynamics, proxy)
+        label = SubmarineLabel()
+        self.addComponent(label, proxy)
         self.ctrl_state = ShipDynamics.ShipCtrlState()
-        self.ctrl_state.throttle = 1.0
+        self.ctrl_state.throttle = 0.0
         self.ctrl_state.rudder = 0.0
         
     def run(self, dt):
         # game physics here
         self.dynamics.run(dt)
+        # rotate screw axis
         self.model.screw_rot += dt * 8.0 * self.dynamics.engine_throttle
         if (self.model.screw_rot > 2 * math.pi):
             self.model.screw_rot -= 2 * math.pi
@@ -58,19 +67,17 @@ class PlayerSubmarine(GameObject):
         super(PlayerSubmarine._get_cls(), self)._reload(other)
         self.model = other.model
         self.dynamics = other.dynamics
-        self.position = other.position
-        self.rotation = other.rotation
+        self.transform = other.transform
         self.ctrl_state = other.ctrl_state
-        self.ctrl_state.throttle = 0.1
-        self.ctrl_state.rudder = 1.0
+        self.ctrl_state.throttle = 0.0
+        self.ctrl_state.rudder = 0.0
 
 
-# since we need to derive from WorldRenderable, we'll
-# define SubmarineModel here
 @reloadable
 class SubmarineModel(WorldComposer.WorldRenderable):
     def __init__(self):
         super(SubmarineModel._get_cls(), self).__init__()
+        self.transform = HTransformable()
         # parts of model:
 
         # hull
@@ -123,7 +130,7 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         self.tower = tower
 
         # screws
-        self.blades = 5
+        self.blades = 7
         self.screw = []
         # common points array
         points = [
@@ -149,42 +156,68 @@ class SubmarineModel(WorldComposer.WorldRenderable):
     def _reload(self, other):
         self.__init__()
         super(SubmarineModel._get_cls(), self)._reload(other)
+        self.transform = other.transform
         self.screw_rot = other.screw_rot
 
-    def OnWorldRender(self, wnd):
+    def OnWorldRender(self, wnd, camera):
+        render_state = RenderStates(BlendMode.BLEND_ALPHA, 
+                                        self.transform.transform)
+        screw_hide_scale = 2.0
         # screw
-        for i in range(0, self.blades):
-            # calculate angles for each blade
-            self.screw[i] = self.screw_rot + i * 2.0 * math.pi / self.blades
-        cosscrews = [math.cos(x) for x in self.screw]   # cosines of those angles
-        sinscrews = [math.sin(x) for x in self.screw]   # sines of those angles
-        zorderscew = sorted(range(0, self.blades), 
-                            key = lambda x: sinscrews[x])
-        self.blade.position = self.owner.position
-        self.blade.rotation = self.owner.rotation
-        first_pos_sin = 0
-        for i in range(0, self.blades):
-            index = zorderscew[i]
-            if sinscrews[index] > 0.0:
-                first_pos_sin = i
-                break
-            self.blade.ratio = Vector2(cosscrews[index], 1.0)
-            wnd.draw(self.blade)
+        if camera.scale < screw_hide_scale:
+            for i in range(0, self.blades):
+                # calculate angles for each blade
+                self.screw[i] = self.screw_rot + i * 2.0 * math.pi / self.blades
+            cosscrews = [math.cos(x) for x in self.screw]   # cosines of those angles
+            sinscrews = [math.sin(x) for x in self.screw]   # sines of those angles
+            zorderscew = sorted(range(0, self.blades), 
+                                key = lambda x: sinscrews[x])
+            first_pos_sin = 0
+            for i in range(0, self.blades):
+                index = zorderscew[i]
+                if sinscrews[index] > 0.0:
+                    first_pos_sin = i
+                    break
+                self.blade.ratio = Vector2(cosscrews[index], 1.0)
+                wnd.draw(self.blade, render_state)
 
         # hull before top screws
-        self.hull.position = self.owner.position
-        self.hull.rotation = self.owner.rotation
-        wnd.draw(self.hull)
-        self.tower.position = self.owner.position
-        self.tower.rotation = self.owner.rotation
-        wnd.draw(self.tower)
+        wnd.draw(self.hull, render_state)
+        wnd.draw(self.tower, render_state)
 
         # top screws
-        for i in range(first_pos_sin, self.blades):
-            index = zorderscew[i]
-            self.blade.ratio = Vector2(cosscrews[index], 1.0)
-            wnd.draw(self.blade)
+        if camera.scale < screw_hide_scale:
+            for i in range(first_pos_sin, self.blades):
+                index = zorderscew[i]
+                self.blade.ratio = Vector2(cosscrews[index], 1.0)
+                wnd.draw(self.blade, render_state)
         
-        
-        
+@reloadable
+class SubmarineLabel(OverlayComposer.OverlayRenderable):
+    def __init__(self):
+        super(SubmarineLabel._get_cls(), self).__init__()
+        self.shapes = OverlayLabels.submarine_label.shapes
+        self.color = Color(100, 100, 255, 255)
+        self.min_zoom = 1.0
+        self.full_zoom = 1.5
 
+    def _reload(self, other):
+        self.__init__()
+        super(SubmarineLabel._get_cls(), self)._reload(other)
+
+    def OnOverlayRender(self, wnd, wnd_size, camera):
+        alpha = 0
+        if camera.scale > self.min_zoom:
+            if camera.scale <= self.full_zoom:
+                alpha = 255 * (camera.scale - self.min_zoom) / \
+                    (self.full_zoom - self.min_zoom)
+            else:
+                alpha = 255
+        color = Color(self.color.r, self.color.g, self.color.b, alpha)
+        screen_pos = wnd.map_coords_to_pixel(self.owner.transform.lposition,
+                                        WorldComposer.composer.view)
+        render_state = RenderStates(BlendMode.BLEND_ALPHA, 
+                            Transform().translate(screen_pos).scale((1.1, 1.1)))
+        for shape in self.shapes:
+            shape.fill_color = color
+            wnd.draw(shape, render_state)

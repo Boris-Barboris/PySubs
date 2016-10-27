@@ -28,6 +28,9 @@
     <Compile Include="engine\GameObject.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine\HTransformable.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine\InputEvent.py">
       <SubType>Code</SubType>
     </Compile>
@@ -38,6 +41,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\ModuleStamp.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\OverlayComposer.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\Reloadable.py">
@@ -86,6 +92,12 @@
     <Compile Include="game\GameLogic.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="game\models\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\OverlayLabels.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="game\ShipDynamics.py">
       <SubType>Code</SubType>
     </Compile>
@@ -109,6 +121,7 @@
     <Folder Include="engine\" />
     <Folder Include="engine\testmodules\" />
     <Folder Include="game\" />
+    <Folder Include="game\models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />

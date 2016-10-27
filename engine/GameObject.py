@@ -2,6 +2,7 @@
 
 from engine.Reloadable import reloadable
 
+
 @reloadable
 class GameObject:
     '''Base class for all entities in the game'''

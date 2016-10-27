@@ -28,6 +28,7 @@ def handle_zoom(event, wnd):
     camera = WorldComposer.composer.camera
     camera.scale -= delta * 0.01 * (1.0 + camera.scale * 10.0)
     camera.scale = max(0.05, camera.scale)
+    camera.scale = min(10.0, camera.scale)
 
 panning = False
 
