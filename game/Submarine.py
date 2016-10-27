@@ -48,9 +48,11 @@ class PlayerSubmarine(GameObject):
     def run(self, dt):
         # game physics here
         self.dynamics.run(dt)
-        self.model.screw_rot += dt * 10.0 * self.dynamics.engine_throttle
+        self.model.screw_rot += dt * 8.0 * self.dynamics.engine_throttle
         if (self.model.screw_rot > 2 * math.pi):
             self.model.screw_rot -= 2 * math.pi
+        if (self.model.screw_rot < -2 * math.pi):
+            self.model.screw_rot += 2 * math.pi
 
     def _reload(self, other):
         super(PlayerSubmarine._get_cls(), self)._reload(other)
@@ -59,8 +61,8 @@ class PlayerSubmarine(GameObject):
         self.position = other.position
         self.rotation = other.rotation
         self.ctrl_state = other.ctrl_state
-        self.ctrl_state.throttle = 0.0
-        self.ctrl_state.rudder = 0.0
+        self.ctrl_state.throttle = 0.1
+        self.ctrl_state.rudder = 1.0
 
 
 # since we need to derive from WorldRenderable, we'll
