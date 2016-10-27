@@ -59,7 +59,7 @@ class PlayerSubmarine(GameObject):
         self.position = other.position
         self.rotation = other.rotation
         self.ctrl_state = other.ctrl_state
-        self.ctrl_state.throttle = 1.0
+        self.ctrl_state.throttle = 0.0
         self.ctrl_state.rudder = 0.0
 
 

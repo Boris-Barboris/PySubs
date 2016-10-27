@@ -16,7 +16,7 @@ def onLoad(core):
     Logging.logMessage('ModuleStamp is loading')
     IOBroker.register_handler(handle_focus, sfml.window.FocusEvent)
     EngineConsole.register_extension(toggle_command, 'stamp')
-    initialize()
+    EngineCore.schedule_FIFO(initialize, 1000)
     
 def onUnload():
     Logging.logMessage('ModuleStamp is unloading')
@@ -31,6 +31,7 @@ module_hash = {}
 def initialize():
     for mdl in EngineCore.loaded_modules:
         module_hash[mdl] = time.ctime(os.path.getmtime(EngineCore.loaded_modules[mdl].__file__))
+    EngineCore.unschedule_FIFO(1000)
 
 def handle_focus(event, wnd):
     if _active and event.gained:

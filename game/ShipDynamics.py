@@ -35,11 +35,11 @@ class ShipDynamics(Component):
         self.moi = 500.0
         self.velocity = Vector2(0.0, 0.0)
         self.angvel = 0.0
-        self.resK = 2.5
+        self.resK = 50.0
         self.resKAoA = 1.0
-        self.liftK = 10.0
+        self.liftK = 100.0
         self.resRotK = 100.0
-        self.rudderK = 0.05
+        self.rudderK = 0.15
         self.min_thrust = -350.0
         self.max_thrust = 1000.0
         self.throttle_spd = 0.5
@@ -54,19 +54,20 @@ class ShipDynamics(Component):
 
     def run(self, dt):
         v2 = sqr_len(self.velocity)
+        v_abs = math.sqrt(v2)
         vel_dir = normalize(self.velocity)
 
         hull_angle = dgr2rad(self.owner.rotation - 90.0)
         vel_angle = vecangle(vel_dir)
         AoA = hull_angle - vel_angle
         right_vec = Vector2(-vel_dir.y, vel_dir.x)
-        lift = right_vec * self.liftK * v2 * math.sin(2.0 * AoA)
+        lift = right_vec * self.liftK * v_abs * math.sin(2.0 * AoA)
 
-        drag = -vel_dir * v2 * (self.resK + \
+        drag = -vel_dir * v_abs * (self.resK + \
             self.resKAoA * sqr(math.sin(AoA)))
         drag_torque = -self.angvel * self.resRotK
         ctrl = self.owner.ctrl_state
-        rudder_torque = ctrl.rudder * v2 * self.rudderK
+        rudder_torque = ctrl.rudder * v_abs * self.rudderK
 
         # update engine throttle
         if ctrl.throttle > self.engine_throttle:
