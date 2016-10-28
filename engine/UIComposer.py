@@ -1,7 +1,5 @@
 #   Copyright Alexander Baranin 2016
 
-# Overlay composer defines components, that are renderable in overlay layer
-
 from engine.Reloadable import reloadable
 from engine.GameObject import Component
 
@@ -15,23 +13,23 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('Composers', 'engine.SceneComposers'),
-    ('WindowModule', 'engine.WindowModule'),
-    ('WorldComposer', 'engine.WorldComposer'))
+    ('WindowModule', 'engine.WindowModule'))
 
 def onLoad(core):
-    Logging.logMessage('OverlayCmposer is loading')
+    Logging.logMessage('UIComposer is loading')
     global composer
-    composer = OverlayComposer._persistent('OverlayCmposer.composer')
-    Composers.composers.OverlayLayer = composer
+    composer = WorldComposer._persistent('UIComposer.composer')
+    Composers.composers.UILayer = composer
 
 def onUnload():
-    Logging.logMessage('OverlayCmposer is unloading')
+    Logging.logMessage('UIComposer is unloading')
 
 
 composer = None
 
+
 @reloadable
-class OverlayComposer:
+class UIComposer:
     def __init__(self):
         self.components = weakref.WeakSet()
 
@@ -39,13 +37,14 @@ class OverlayComposer:
         wnd = WindowModule.app_window
         wnd_size = wnd.size()
         # create view from camera and assign it to window
-        view = View(Rectangle((0, 0), (wnd_size.x, wnd_size.y)))
-        wnd.wnd_handle.view = view
-        camera = WorldComposer.composer.camera
+        wnd.wnd_handle.view = View()
+        # iterale all worldRenderables
         for c in self.components:
-            c.OnOverlayRender(wnd, wnd_size, camera)
+            if c.active():
+                c.OnUIRender(wnd)
 
     def _reload(self, other):
+        self.__init__()
         self.components = other.components
 
 def onComponentEnable(obj, enabled):
@@ -58,11 +57,11 @@ def onComponentEnable(obj, enabled):
             pass
 
 @reloadable
-class OverlayRenderable(Component):
+class UIRenderable(Component):
     def __init__(self, owner = None):
-        super(OverlayRenderable._get_cls(), self).__init__(owner)
+        super(UIRenderable._get_cls(), self).__init__(owner)
         composer.components.add(self)
         self.OnEnable.append(onComponentEnable)
 
-    def OnOverlayRender(self, wnd, wnd_size, camera):
+    def OnUIRender(self, wnd):
         pass

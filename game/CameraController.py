@@ -26,11 +26,18 @@ def onUnload():
 def handle_zoom(event, wnd):
     delta = event.delta
     camera = WorldComposer.composer.camera
-    camera.scale -= delta * 0.01 * (1.0 + camera.scale * 10.0)
+    scale_shift = delta * 0.01 * (1.0 + camera.scale * 10.0)
+    camera.scale -= scale_shift
     camera.scale = max(0.05, camera.scale)
     camera.scale = min(10.0, camera.scale)
+    if delta > 0 and positional_zoom:
+        pos = event.position
+        size = wnd.size()
+        shift = (pos - size * 0.5) * scale_shift
+        camera.position += shift
 
 panning = False
+positional_zoom = True
 
 def handle_click(event, wnd):
     global panning

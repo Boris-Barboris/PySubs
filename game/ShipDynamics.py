@@ -37,9 +37,9 @@ class ShipDynamics(Component):
         self.angvel = 0.0
         self.resK = 50.0
         self.resKAoA = 1.0
-        self.liftK = 100.0
+        self.liftK = 500.0
         self.resRotK = 100.0
-        self.rudderK = 0.3
+        self.rudderK = 0.25
         self.min_thrust = -350.0
         self.max_thrust = 1000.0
         self.throttle_spd = 0.5

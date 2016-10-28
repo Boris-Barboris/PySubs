@@ -56,8 +56,7 @@ class WorldComposer:
         wnd.wnd_handle.view = self.view
         # iterale all worldRenderables
         for c in self.components:
-            if c.active():
-                c.OnWorldRender(wnd, self.camera)
+            c.OnWorldRender(wnd, self.camera)
 
     def get_view(self, camera, wnd_size):
         return View(Rectangle(
@@ -71,11 +70,21 @@ class WorldComposer:
         self.camera = other.camera
         self.view = other.view
 
+def onComponentEnable(obj, enabled):
+    if enabled:
+        composer.components.add(obj)
+    else:
+        try:
+            composer.components.remove(obj)
+        except KeyError:
+            pass
+
 @reloadable
 class WorldRenderable(Component):
     def __init__(self, owner = None):
         super(WorldRenderable._get_cls(), self).__init__(owner)
         composer.components.add(self)
+        self.OnEnable.append(onComponentEnable)
 
     def OnWorldRender(self, wnd, camera):
         pass
