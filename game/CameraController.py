@@ -30,7 +30,7 @@ def handle_zoom(event, wnd):
     camera.scale -= scale_shift
     camera.scale = max(0.05, camera.scale)
     camera.scale = min(10.0, camera.scale)
-    if delta > 0 and positional_zoom:
+    if delta > 0 and positional_zoom and camera.scale > 0.05:
         pos = event.position
         size = wnd.size()
         shift = (pos - size * 0.5) * scale_shift

@@ -5,7 +5,7 @@ PySubs game concept.
 2. Opensource.
 
 3. Portable. Currently, PySFML is used as middleware, wich is using OpenGL.
-PySFML works with Python3.4 only atm.
+PySFML works with Python3.3 only atm.
 
 4. Main focus on architecture. Gameplay is secondary. Assets are nonexistent.
 
