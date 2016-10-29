@@ -35,4 +35,4 @@ def vecangle(vec):
         return angle
 
 def hypercross(lhs, rhs):
-    return lhs.x * rhs.y - lhs.y * rhs.x
+    return lhs.y * rhs.x - lhs.x * rhs.y
