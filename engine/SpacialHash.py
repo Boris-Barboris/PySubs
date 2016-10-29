@@ -13,7 +13,7 @@ class Fixed2DHash:
         self._cell_size = (global_size[0] / cell_count[0], 
                            global_size[1] / cell_count[1])
         self._cell_count = cell_count
-        self._cells = [None] * (self._size[0] * self._size[1])
+        self._cells = [None] * (self._cell_count[0] * self._cell_count[1])
 
     def clampx(self, index):
         return int(max(0, min(index, self._size[0] - 1)))
@@ -41,9 +41,9 @@ class Fixed2DHash:
 
     def unregister(self, obj, indexes):
         for i in indexes:
-            if self._cells[index] is not None:
+            if self._cells[i] is not None:
                 try:
-                    self._cells[index].remove(obj)
+                    self._cells[i].remove(obj)
                 except KeyError:
                     pass
 

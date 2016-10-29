@@ -30,13 +30,13 @@ class FPSLabel(Label.LabelObject):
         super(FPSLabel._get_cls(), self).__init_rld__(proxy)
         self.avg_fps = 60.0
         self.time_hp = time.clock()
-        self.text.character_size = 20
+        self.label.character_size = 20
 
     def run(self):
         frame_time = time.clock() - self.time_hp
         self.time_hp += frame_time
         self.avg_fps = 0.8 * self.avg_fps + 0.2 / frame_time
-        self.text.string = "{0:.1f}".format(self.avg_fps)
+        self.label.string = "{0:.1f}".format(self.avg_fps)
 
     def _reload(self, other):
         super(FPSLabel._get_cls(), self)._reload(other)

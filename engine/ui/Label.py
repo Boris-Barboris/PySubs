@@ -1,6 +1,7 @@
 #   Copyright Alexander Baranin 2016
 
 import sys
+import sfml
 
 from engine.Reloadable import reloadable
 from engine.GameObject import *
@@ -14,10 +15,12 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('TextManager', 'engine.TextManager'),
-    ('UIComposer', 'engine.UIComposer'))
+    ('UIComposer', 'engine.UIComposer'),
+    ('InputManager', 'engine.InputManager'))
 
 _subscribe_modules = [
-    'engine.UIComposer']
+    'engine.UIComposer',
+    'engine.InputManager']
 
 from engine.EngineCore import handle_imports
 
@@ -62,14 +65,57 @@ class LabelComponent(UIComposer.UIRenderable):
         font = TextManager.load_font('calibri.ttf')
         self.text = Text('', font, 10)
         self.text.color = Color.WHITE
+        self.highlighter = LabelHighlightComponent(self)
+        
 
     def OnUIRender(self, wnd):
         render_state = RenderStates(BlendMode.BLEND_ALPHA, 
                                         self.transform.transform)
         wnd.draw(self.text, render_state)
 
+    @property
+    def string(self):
+        return self.text.string
+
+    @string.setter
+    def string(self, value):
+        self.text.string = value
+        self.highlighter.update_rect()
+    
+    @property
+    def character_size(self):
+        return self.text.character_size
+
+    @character_size.setter
+    def character_size(self, value):
+        self.text.character_size = value
+        self.highlighter.update_rect()
+
     def _reload(self, other):
         self.__init__()
         super(LabelComponent._get_cls(), self)._reload(other)
         self.transform = other.transform
         self.text = other.text
+        self.highlighter = other.highlighter
+
+@reloadable
+class LabelHighlightComponent(InputManager.UIInputReciever):
+    def __init__(self, label):
+        self.label = label
+        self.owner = label
+        rect = label.transform.transform.transform_rectangle(
+            label.text.global_bounds)
+        super(LabelHighlightComponent._get_cls(), self).__init__(rect)
+
+    def update_rect(self):
+        self.rect = self.label.transform.transform.transform_rectangle(
+            self.label.text.global_bounds)
+        self.OnRectangleChange(self)
+
+    def handle_event(self, event, wnd):
+        if type(event) is sfml.window.MouseMoveEvent:
+            self.label.text.color = sfml.graphics.Color.RED
+
+    def _reload(self, other):
+        super(LabelHighlightComponent._get_cls(), self)._reload(other)
+        self.label = other.label

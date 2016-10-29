@@ -28,7 +28,7 @@ class OrderedDeque():
     def push(self, obj):
         """Create new element and push it to the tail of deque"""
         self.head_index += 1
-        elem = DequeElement(self, obj, self.head_index, self.head)
+        elem = OrderedDeque.DequeElement(self, obj, self.head_index, self.head)
         if self.head is not None:
             self.head.next = elem
         self.head = elem
@@ -85,7 +85,7 @@ class WeakOrderedDeque(OrderedDeque):
 
     def push(self, obj):
         weak = weakref.ref(obj, self.onWeakCollect)
-        return self.push(weak)
+        return super().push(weak)
 
     def onWeakCollect(self, weak):
         self.removeFirst(weak)

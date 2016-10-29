@@ -22,6 +22,8 @@ import sfml
 from sfml.graphics import Rectangle
 from sfml.system import Vector2
 
+from engine.Event import Event
+
 from engine.Reloadable import reloadable
 from engine.GameObject import Component
 from engine.SpacialHash import Fixed2DHash
@@ -123,16 +125,30 @@ def OnUIRecieverEnable(component, value):
         inputManager.uiManaged.removeElem(component.input_stack_el)
         inputManager.uiHash.unregister(component, component.input_hash_indx)
 
+def OnUIRecieverRectUpdate(reciever):
+    inputManager.uiHash.unregister(reciever, reciever.input_hash_indx)
+    reciever.input_hash_indx = inputManager.uiHash.register(
+                                        reciever.rect, reciever)
+
+
 @reloadable
 class UIInputReciever(Component):
     def __init__(self, rect):
-        super(ManagedInputReciever._get_cls(), self).__init__(owner)
+        super(UIInputReciever._get_cls(), self).__init__()
         self.rect = rect
         self.OnEnable.append(OnUIRecieverEnable)
-        self.OnEnable(self, True)        
+        self.OnEnable(self, True)
+        self.OnRectangleChange = Event()
+        self.OnRectangleChange.append(OnUIRecieverRectUpdate)
 
     def handle_event(self, event, wnd):
         return True
 
     def checkPoint(self, point):
         return self.rect.contains(point)
+
+    def _reload(self, other):
+        self.rect = other.rect
+        self.OnEnable = other.OnEnable
+        self.OnRectangleChange = other.OnRectangleChange
+        self.input_stack_el = getattr(other, 'input_stack_el', None)
