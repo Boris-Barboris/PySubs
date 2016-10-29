@@ -19,7 +19,8 @@ import weakref
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
-    ('IOBroker', 'engine.IOBroker'))
+    ('IOBroker', 'engine.IOBroker'),
+    ('WindowModule', 'engine.WindowModule'))
 
 def onLoad(core):
     Logging.logMessage('InputManager is loading')
@@ -34,4 +35,15 @@ inputManager = None
 
 @reloadable
 class InputManager:
-    pass
+    def __init__(self):
+        self.managed = weakref.WeakSet()
+        self.unmanaged = weakref.WeakSet()
+        self.hash = Fixed2DHash(WindowModule.app_window.size(), (5, 4))
+
+    def handle_event(self, event, wnd):
+        pass
+
+    def _reload(self, other):
+        self.managed = other.managed
+        self.unmanaged = other.unmanaged
+        self.hash = other.hash

@@ -37,7 +37,7 @@ def handle_zoom(event, wnd):
         camera.position += shift
 
 panning = False
-positional_zoom = True
+positional_zoom = False
 
 def handle_click(event, wnd):
     global panning
