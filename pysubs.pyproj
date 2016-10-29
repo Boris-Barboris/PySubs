@@ -31,9 +31,6 @@
     <Compile Include="engine\HTransformable.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="engine\InputEvent.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="engine\InputManager.py">
       <SubType>Code</SubType>
     </Compile>
@@ -84,6 +81,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\UIComposer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\OrderedDeque.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\WindowModule.py">

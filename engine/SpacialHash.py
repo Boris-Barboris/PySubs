@@ -7,7 +7,7 @@ import math
 
 
 # 2D hash intended for GUI and overlay cmouse lick handling
-# works with static Rectangles
+# works with static Rectangles. References objects weakly.
 class Fixed2DHash:
     def __init__(self, global_size, cell_count):
         self._size = global_size
