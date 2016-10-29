@@ -82,6 +82,7 @@ class InputManager:
 
         point = event.position
         # UI layer
+        reciever = None
         candidates = self.uiHash.cell(point)
         if candidates is not None:
             sorted_cand = sorted(candidates, 
@@ -100,11 +101,7 @@ class InputManager:
                 self.activeReciever = False
                 if self.cursored is not None:
                     self.cursored.OnMouseLeave()
-                self.cursored = None
-        else:
-            if self.cursored is not None:
-                self.cursored.OnMouseLeave()
-            self.cursored = None
+                self.cursored = None            
         # Overlay layer
         candidates = self.overlayHash.cell(point)
         if candidates is not None:
@@ -123,6 +120,11 @@ class InputManager:
             if reciever is not None:
                 if not reciever.handle_event(event, wnd):
                     return
+
+        if reciever is None:
+            if self.cursored is not None:
+                self.cursored.OnMouseLeave()
+            self.cursored = None
         # Unmanaged recievers
         for reciever in self.unmanaged:
             reciever.handle_event(event, wnd)

@@ -8,6 +8,7 @@ class HTransformable:
     def __init__(self):
         self.transformable = Transformable()
         self.parent = None
+        self.dirty = True
 
     @property
     def trmble(self):
@@ -19,10 +20,14 @@ class HTransformable:
 
     @property
     def transform(self):
+        if not self.dirty:
+            return self._cache
         if self.parent is not None:
             trans = self.parent.transform
             return trans.combine(self.transformable.transform)
-        return Transform().combine(self.transformable.transform)
+        self._cache = Transform().combine(self.transformable.transform)
+        self.dirty = False
+        return self._cache
 
     @property
     def lposition(self):
@@ -31,6 +36,7 @@ class HTransformable:
     @lposition.setter
     def lposition(self, value):
         self.transformable.position = value
+        self.dirty = True
 
     @property
     def lrotation(self):
@@ -39,6 +45,7 @@ class HTransformable:
     @lrotation.setter
     def lrotation(self, value):
         self.transformable.rotation = value
+        self.dirty = True
 
     @property
     def lratio(self):
@@ -47,9 +54,12 @@ class HTransformable:
     @lratio.setter
     def lratio(self, velue):
         self.transformable.ratio = value
+        self.dirty = True
 
     def lrotate(self, value):
         self.transformable.rotate(value)
+        self.dirty = True
 
     def ltranslate(self, value):
         self.transformable.move(value)
+        self.dirty = True
