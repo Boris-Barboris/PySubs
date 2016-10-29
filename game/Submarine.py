@@ -69,7 +69,7 @@ class PlayerSubmarine(GameObject):
         self.dynamics = other.dynamics
         self.transform = other.transform
         self.ctrl_state = other.ctrl_state
-        self.ctrl_state.throttle = 0.0
+        self.ctrl_state.throttle = 1.0
         self.ctrl_state.rudder = 0.0
 
 
@@ -142,8 +142,8 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         blade = ConvexShape()
         blade.texture = None
         blade.fill_color = Color(80, 80, 80, 255)
-        blade.outline_color = Color(0, 0, 0, 100)
-        blade.outline_thickness = 0.3
+        blade.outline_color = Color(20, 20, 20, 255)
+        blade.outline_thickness = 0.2
         blade.point_count = len(points)
         for i in range(0, len(points)):
             blade.set_point(i, points[i])

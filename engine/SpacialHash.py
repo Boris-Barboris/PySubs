@@ -3,7 +3,6 @@
 from sfml.graphics import *
 from sfml.system import Vector2
 import weakref
-import math
 
 
 # 2D hash intended for GUI and overlay cmouse lick handling
@@ -13,13 +12,14 @@ class Fixed2DHash:
         self._size = global_size
         self._cell_size = (global_size[0] / cell_count[0], 
                            global_size[1] / cell_count[1])
+        self._cell_count = cell_count
         self._cells = [None] * (self._size[0] * self._size[1])
 
     def clampx(self, index):
-        return math.max(0, math.min(index, self._size[0] - 1))
+        return int(max(0, min(index, self._size[0] - 1)))
 
     def clampy(self, index):
-        return math.max(0, math.min(index, self._size[1] - 1))
+        return int(max(0, min(index, self._size[1] - 1)))
 
     def register(self, rect, obj):
         x_min = self.clampx(rect.left // self._cell_size[0])
@@ -29,7 +29,7 @@ class Fixed2DHash:
         indexes = []
         for ix in range(x_min, x_max + 1):
             for iy in range(y_min, y_max + 1):
-                index = iy * self._size[0] + ix
+                index = iy * self._cell_count[0] + ix
                 indexes.append(index)
                 if self._cells[index] is not None:
                     self._cells[index].add(obj)
@@ -47,11 +47,11 @@ class Fixed2DHash:
                 except KeyError:
                     pass
 
-    def point(self, point):
-        """Get possible neighbours of point"""
+    def cell(self, point):
+        """Get objects in the same cell as the point"""
         x = self.clampx(point[1] // self._cell_size[0])
         y = self.clampy(point[0] // self._cell_size[1])
-        index = y * self._size[0] + x
+        index = y * self._cell_count[0] + x
         cell = self._cells[index]
         if cell is None:
             return None

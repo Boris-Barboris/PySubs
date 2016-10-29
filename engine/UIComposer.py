@@ -18,7 +18,7 @@ _import_modules = (
 def onLoad(core):
     Logging.logMessage('UIComposer is loading')
     global composer
-    composer = WorldComposer._persistent('UIComposer.composer')
+    composer = UIComposer._persistent('UIComposer.composer')
     Composers.composers.UILayer = composer
 
 def onUnload():
@@ -27,6 +27,7 @@ def onUnload():
 
 composer = None
 
+# TODO - add z-order
 
 @reloadable
 class UIComposer:
@@ -37,11 +38,11 @@ class UIComposer:
         wnd = WindowModule.app_window
         wnd_size = wnd.size()
         # create view from camera and assign it to window
-        wnd.wnd_handle.view = View()
+        view = View(Rectangle((0, 0), (wnd_size.x, wnd_size.y)))
+        wnd.wnd_handle.view = view
         # iterale all worldRenderables
         for c in self.components:
-            if c.active():
-                c.OnUIRender(wnd)
+            c.OnUIRender(wnd)
 
     def _reload(self, other):
         self.__init__()

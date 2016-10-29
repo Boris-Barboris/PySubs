@@ -11,6 +11,12 @@
 # Al managed recievers will be split onto 3 ordered layers (World, Overlay, UI).
 # World layer components will manage depth on their own (sice they usually tend
 # to have their own concept of depth). Other two are ordered by InputManager.
+#
+# Mouse events can change active reciever. Keyboard and joystick ones can not.
+# All recievers are assumed to have rectangular form - used for hashing.
+# Actual, precise check is done via checkPoint function.
+#
+# Possibly, in the future World overlay will migrate to physics Module.
 
 import sfml
 from sfml.graphics import Rectangle
@@ -34,15 +40,15 @@ def onLoad(core):
     Logging.logMessage('InputManager is loading')
     global inputManager
     inputManager = InputManager._persistent('InputManager.inputManager')
-    IOBroker.register_handler(handle_event, sfml.window.MouseMoveEvent)
-    IOBroker.register_handler(handle_event, sfml.window.MouseWheelEvent)
-    IOBroker.register_handler(handle_event, sfml.window.MouseButtonEvent)
+    IOBroker.register_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
+    IOBroker.register_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
+    IOBroker.register_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
 
 def onUnload():
     Logging.logMessage('InputManager is unloading')
-    IOBroker.unregister_handler(handle_event, sfml.window.MouseMoveEvent)
-    IOBroker.unregister_handler(handle_event, sfml.window.MouseWheelEvent)
-    IOBroker.unregister_handler(handle_event, sfml.window.MouseButtonEvent)
+    IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
+    IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
+    IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
 
 
 inputManager = None
@@ -59,8 +65,41 @@ class InputManager:
         self.unmanaged = weakref.WeakSet()
         self.activeReciever = None
 
-    def handle_event(self, event, wnd):
-        pass
+    def handle_mouse_event(self, event, wnd):
+        point = event.position
+        # UI layer
+        candidates = self.uiHash.cell(point)
+        if candidates is not None:
+            sorted_cand = sorted(candidates, 
+                key = lambda x: x.input_stack_el.index)
+            reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
+            if reciever is not None:
+                self.activeReciever = reciever
+                if not reciever.handle_event(event, wnd):
+                    return
+            else:
+                self.activeReciever = False
+        # Overlay layer
+        candidates = self.overlayHash.cell(point)
+        if candidates is not None:
+            sorted_cand = sorted(candidates, 
+                key = lambda x: x.input_stack_el.index)
+            reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
+            if reciever is not None:
+                if not reciever.handle_event(event, wnd):
+                    return
+        # World layer
+        candidates = self.worldHash.cell(point)
+        if candidates is not None:
+            sorted_cand = sorted(candidates, 
+                key = lambda x: x.input_stack_el.index)
+            reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
+            if reciever is not None:
+                if not reciever.handle_event(event, wnd):
+                    return
+        # Unmanaged recievers
+        for reciever in self.unmanaged:
+            reciever.handle_event(event, wnd)
 
     def _reload(self, other):
         self.uiManaged = other.uiManaged
@@ -72,20 +111,28 @@ class InputManager:
         self.activeReciever = other.activeReciever
 
 
-def handle_event(event, wnd):
-    inputManager.handle_event(event, wnd)
+def handle_mouse_event(event, wnd):
+    inputManager.handle_mouse_event(event, wnd)
 
 def OnUIRecieverEnable(component, value):
     if value:
         component.input_stack_el = inputManager.uiManaged.push(component)
-        component.input_hash_indx = inputManager.uiHash.register(component.rect)
+        component.input_hash_indx = inputManager.uiHash.register(
+                                        component.rect, component)
+    else:
+        inputManager.uiManaged.removeElem(component.input_stack_el)
+        inputManager.uiHash.unregister(component, component.input_hash_indx)
 
 @reloadable
 class UIInputReciever(Component):
-    def __init__(self):
+    def __init__(self, rect):
         super(ManagedInputReciever._get_cls(), self).__init__(owner)
+        self.rect = rect
         self.OnEnable.append(OnUIRecieverEnable)
-        self.OnEnable(self, True)
+        self.OnEnable(self, True)        
 
     def handle_event(self, event, wnd):
         return True
+
+    def checkPoint(self, point):
+        return self.rect.contains(point)

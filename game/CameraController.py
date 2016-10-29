@@ -2,6 +2,7 @@
 
 import sfml
 from sfml.system import Vector2
+from engine.Reloadable import reloadable
 import math
 
 
@@ -9,55 +10,62 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('WorldComposer', 'engine.WorldComposer'),
-    ('IOBroker', 'engine.IOBroker'))
+    ('InputManager', 'engine.InputManager'))
 
 def onLoad(core):
     Logging.logMessage('CameraController is loading')
-    IOBroker.register_handler(handle_zoom, sfml.window.MouseWheelEvent)
-    IOBroker.register_handler(handle_click, sfml.window.MouseButtonEvent)
-    IOBroker.register_handler(handle_move, sfml.window.MouseMoveEvent)
+    global controller
+    controller = CameraController._persistent('CameraController.controller')
+    InputManager.inputManager.unmanaged.add(controller)
 
 def onUnload():
     Logging.logMessage('CameraController is unloading')
-    IOBroker.unregister_handler(handle_zoom, sfml.window.MouseWheelEvent)
-    IOBroker.unregister_handler(handle_click, sfml.window.MouseButtonEvent)
-    IOBroker.unregister_handler(handle_move, sfml.window.MouseMoveEvent)
 
-def handle_zoom(event, wnd):
-    delta = event.delta
-    camera = WorldComposer.composer.camera
-    scale_shift = delta * 0.01 * (1.0 + camera.scale * 10.0)
-    camera.scale -= scale_shift
-    camera.scale = max(0.05, camera.scale)
-    camera.scale = min(10.0, camera.scale)
-    if delta > 0 and positional_zoom and camera.scale > 0.05:
-        pos = event.position
-        size = wnd.size()
-        shift = (pos - size * 0.5) * scale_shift
-        camera.position += shift
+controller = None
 
-panning = False
-positional_zoom = False
+POSITIONAL_ZOOM = False
 
-def handle_click(event, wnd):
-    global panning
-    if event.button == sfml.window.Mouse.RIGHT:
-        if event.pressed:
-            panning = True
-            global prev_pos
-            prev_pos = event.position
-        if event.released:
-            panning = False
+@reloadable
+class CameraController:
+    def __init__(self):
+        self.panning = False
+        self.prev_pos = None
 
-prev_pos = None
+    def handle_event(self, event, wnd):
+        if type(event) is sfml.window.MouseWheelEvent:
+            self.handle_zoom(event, wnd)
+        elif type(event) is sfml.window.MouseButtonEvent:
+            self.handle_click(event, wnd)
+        elif type(event) is sfml.window.MouseMoveEvent:
+            self.handle_move(event, wnd)
 
-def handle_move(event, wnd):
-    global prev_pos
-    if panning:
-        if prev_pos is None:
-            prev_pos = event.position
-            return
-        delta = event.position - prev_pos
+    def handle_zoom(self, event, wnd):
+        delta = event.delta
         camera = WorldComposer.composer.camera
-        camera.position -= delta * camera.scale
-        prev_pos = event.position
+        scale_shift = delta * 0.01 * (1.0 + camera.scale * 10.0)
+        camera.scale -= scale_shift
+        camera.scale = max(0.05, camera.scale)
+        camera.scale = min(10.0, camera.scale)
+        if delta > 0 and POSITIONAL_ZOOM and camera.scale > 0.05:
+            pos = event.position
+            size = wnd.size()
+            shift = (pos - size * 0.5) * scale_shift
+            camera.position += shift
+
+    def handle_click(self, event, wnd):
+        if event.button == sfml.window.Mouse.RIGHT:
+            if event.pressed:
+                self.panning = True
+                self.prev_pos = event.position
+            if event.released:
+                self.panning = False
+
+    def handle_move(self, event, wnd):
+        if self.panning:
+            if self.prev_pos is None:
+                self.prev_pos = event.position
+                return
+            delta = event.position - self.prev_pos
+            camera = WorldComposer.composer.camera
+            camera.position -= delta * camera.scale
+            self.prev_pos = event.position

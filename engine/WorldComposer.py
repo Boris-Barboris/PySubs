@@ -2,6 +2,7 @@
 
 # World composer defines components, that are renderable in World layer
 # We'll probably expand base classes here later
+# TODO - add z-order
 
 from engine.Reloadable import reloadable
 from engine.GameObject import Component

@@ -116,6 +116,16 @@ def reloadable(cls):
                     new_obj._reload(self.__obj)
                 except Exception:
                     traceback.print_exc()
+            else:
+                try:
+                    # else try to find standard constuctors
+                    init_rld = getattr(new_obj, '__init_rld__', None)
+                    if init_rld is not None:
+                        new_obj.__init_rld__(self)
+                    else:
+                        new_obj.__init__()
+                except Exception:
+                    traceback.print_exc()
             # update wrapper class and instance
             self.__obj = new_obj
             Reloadable.__cls = new_cls
