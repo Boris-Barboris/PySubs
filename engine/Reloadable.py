@@ -116,20 +116,25 @@ def reloadable(cls):
                     new_obj._reload(self.__obj)
                 except Exception:
                     traceback.print_exc()
+                    print('trying to create new object instead of reloading')
+                    self._try_init(new_obj)
             else:
-                try:
-                    # else try to find standard constuctors
-                    init_rld = getattr(new_obj, '__init_rld__', None)
-                    if init_rld is not None:
-                        new_obj.__init_rld__(self)
-                    else:
-                        new_obj.__init__()
-                except Exception:
-                    traceback.print_exc()
+                self._try_init(new_obj)
             # update wrapper class and instance
             self.__obj = new_obj
             Reloadable.__cls = new_cls
             self.__class__ = new_rld_cls
+
+        def _try_init(self, new_obj):
+            try:
+                # else try to find standard constuctors
+                init_rld = getattr(new_obj, '__init_rld__', None)
+                if init_rld is not None:
+                    new_obj.__init_rld__(self)
+                else:
+                    new_obj.__init__()
+            except Exception:
+                traceback.print_exc()
 
         def __register(self, _id = None):
             '''register instance in global map'''

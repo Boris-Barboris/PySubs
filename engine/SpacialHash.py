@@ -16,10 +16,10 @@ class Fixed2DHash:
         self._cells = [None] * (self._cell_count[0] * self._cell_count[1])
 
     def clampx(self, index):
-        return int(max(0, min(index, self._size[0] - 1)))
+        return int(max(0, min(index, self._cell_count[0] - 1)))
 
     def clampy(self, index):
-        return int(max(0, min(index, self._size[1] - 1)))
+        return int(max(0, min(index, self._cell_count[1] - 1)))
 
     def register(self, rect, obj):
         x_min = self.clampx(rect.left // self._cell_size[0])

@@ -106,15 +106,19 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         rect = label.transform.transform.transform_rectangle(
             label.text.global_bounds)
         super(LabelHighlightComponent._get_cls(), self).__init__(rect)
+        self.OnMouseEnter.append(self.onMouseEnterHandler)
+        self.OnMouseLeave.append(self.onMouseLeaveHandler)
 
     def update_rect(self):
         self.rect = self.label.transform.transform.transform_rectangle(
             self.label.text.global_bounds)
         self.OnRectangleChange(self)
 
-    def handle_event(self, event, wnd):
-        if type(event) is sfml.window.MouseMoveEvent:
-            self.label.text.color = sfml.graphics.Color.RED
+    def onMouseEnterHandler(self):
+        self.label.text.color = sfml.graphics.Color.RED
+
+    def onMouseLeaveHandler(self):
+        self.label.text.color = sfml.graphics.Color.WHITE
 
     def _reload(self, other):
         super(LabelHighlightComponent._get_cls(), self)._reload(other)

@@ -15,6 +15,9 @@
 # Mouse events can change active reciever. Keyboard and joystick ones can not.
 # All recievers are assumed to have rectangular form - used for hashing.
 # Actual, precise check is done via checkPoint function.
+# 
+# Reciever right under the mouse is called 'cursored', there are events to
+# handle that like OnMouseEnter and OnMouseLeave
 #
 # Possibly, in the future World overlay will migrate to physics Module.
 
@@ -45,12 +48,14 @@ def onLoad(core):
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
+    IOBroker.register_handler(handle_mouse_event, sfml.window.MouseEvent)
 
 def onUnload():
     Logging.logMessage('InputManager is unloading')
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
+    IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseEvent)
 
 
 inputManager = None
@@ -66,8 +71,15 @@ class InputManager:
         self.worldHash = Fixed2DHash(WindowModule.app_window.size(), (5, 4))
         self.unmanaged = weakref.WeakSet()
         self.activeReciever = None
+        self.cursored = None
 
     def handle_mouse_event(self, event, wnd):
+        if type(event) is sfml.window.MouseEvent:
+            if event.left:
+                if self.cursored is not None:
+                    self.cursored.OnMouseLeave()
+            return
+
         point = event.position
         # UI layer
         candidates = self.uiHash.cell(point)
@@ -77,10 +89,22 @@ class InputManager:
             reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
             if reciever is not None:
                 self.activeReciever = reciever
+                if self.cursored is not reciever:
+                    if self.cursored is not None:
+                        self.cursored.OnMouseLeave()
+                    reciever.OnMouseEnter()
+                    self.cursored = reciever
                 if not reciever.handle_event(event, wnd):
                     return
             else:
                 self.activeReciever = False
+                if self.cursored is not None:
+                    self.cursored.OnMouseLeave()
+                self.cursored = None
+        else:
+            if self.cursored is not None:
+                self.cursored.OnMouseLeave()
+            self.cursored = None
         # Overlay layer
         candidates = self.overlayHash.cell(point)
         if candidates is not None:
@@ -111,6 +135,8 @@ class InputManager:
         self.worldManaged = other.worldManaged
         self.worldHash = other.worldHash
         self.activeReciever = other.activeReciever
+        self.unmanaged = other.unmanaged
+        self.cursored = other.cursored
 
 
 def handle_mouse_event(event, wnd):
@@ -140,6 +166,8 @@ class UIInputReciever(Component):
         self.OnEnable(self, True)
         self.OnRectangleChange = Event()
         self.OnRectangleChange.append(OnUIRecieverRectUpdate)
+        self.OnMouseEnter = Event()
+        self.OnMouseLeave = Event()
 
     def handle_event(self, event, wnd):
         return True
@@ -151,4 +179,7 @@ class UIInputReciever(Component):
         self.rect = other.rect
         self.OnEnable = other.OnEnable
         self.OnRectangleChange = other.OnRectangleChange
-        self.input_stack_el = getattr(other, 'input_stack_el', None)
+        self.input_stack_el = other.input_stack_el
+        self.input_hash_indx = other.input_hash_indx
+        self.OnMouseEnter = other.OnMouseEnter
+        self.OnMouseLeave = other.OnMouseLeave
