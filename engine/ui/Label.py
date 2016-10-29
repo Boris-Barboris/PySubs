@@ -110,8 +110,9 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         self.OnMouseLeave.append(self.onMouseLeaveHandler)
 
     def update_rect(self):
-        self.rect = self.label.transform.transform.transform_rectangle(
-            self.label.text.global_bounds)
+        point = self.label.transform.transform.transform_point(
+            self.label.text.global_bounds.position)
+        self.rect = Rectangle(point, self.label.text.global_bounds.size)
         self.OnRectangleChange(self)
 
     def onMouseEnterHandler(self):

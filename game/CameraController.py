@@ -23,7 +23,7 @@ def onUnload():
 
 controller = None
 
-POSITIONAL_ZOOM = False
+POSITIONAL_ZOOM = True
 
 @reloadable
 class CameraController:
@@ -49,7 +49,7 @@ class CameraController:
         if delta > 0 and POSITIONAL_ZOOM and camera.scale > 0.05:
             pos = event.position
             size = wnd.size()
-            shift = (pos - size * 0.5) * scale_shift
+            shift = (pos - size * 0.5) * scale_shift * 0.5
             camera.position += shift
 
     def handle_click(self, event, wnd):

@@ -39,7 +39,6 @@ class OrderedDeque():
     def pushElem(self, elem):
         """Push element to the tail of deque"""
         self.head_index += 1
-        elem.s
         elem.index = self.head_index
         elem.prev = self.head
         elem.next = None
@@ -74,7 +73,7 @@ class OrderedDeque():
         return None
 
     def moveToHead(self, elem):
-        self.remove(elem)
+        self.removeElem(elem)
         self.pushElem(elem)
 
 

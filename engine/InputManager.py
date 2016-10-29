@@ -170,6 +170,9 @@ class UIInputReciever(Component):
         self.OnMouseLeave = Event()
 
     def handle_event(self, event, wnd):
+        if type(event) is sfml.window.MouseButtonEvent:
+            self.input_stack_el.moveToHead()
+            return False
         return True
 
     def checkPoint(self, point):
