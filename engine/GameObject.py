@@ -36,6 +36,7 @@ class GameObject:
     def addComponent(self, cmp, proxy):
         self.components.append(cmp)
         cmp.owner = proxy
+        #self.OnEnable.append(cmp.onOnwerEnable)
 
     def removeComponent(self, cmp):
         self.components.remove(cmp)
