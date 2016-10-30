@@ -108,3 +108,30 @@ hierarchies, and not only one classes. For example, if in hierarchy A->B->C
 module, wich defined class B was reloaded, on it's reload all instances of classes
 B and C must also be reloaded. Reloadable decorator with EngineCore reload
 subscription functionality are handling this problem acceptably.
+
+Module reloading:
+
+    When Python is instructed to reload module, it overwrites the module's dict
+from new file. All existing instances of types, defined in that module remain.
+PySubs engine is using reloadable decorator from module engine.Reloadable.py
+It is a proxy pattern implementation, that changes underlying instance when
+it's module is reloaded.
+    General info about reloadable classes:
+    - all references to reloadable object should be indirect: reference 
+Reloadable proxy, not instance itself.
+    - attribute lookup should be transparent - hence the need in custom
+metaclass and getattr overrides
+    - super() is not working with reloadable, since decorator dynamically overrides
+inheritance hierarchy to keep proxy type only on the top level. If you want
+to get to base class method, use explicit 
+super(Type._get_cls(), self).<methodname>(params). _get_cls is classmethod, that
+returns underlying original type.
+    - no parameterless constructors - always one parameter 'proxy', that is a
+reference to proxy object, that will hold the instance, that is constructed now.
+    - _reload(self, other, proxy) method is used to reload instance from the 
+old one, instead of __init__ initializer. If it is not provided, parameterless
+__init__(self, proxy) is tried.
+    - currently, bound methods point to underlying object, wich is incorrect.
+It's being worked on.
+    - you should never derive reloadable class by unreloadable one. It's not
+handlede, it will not work.

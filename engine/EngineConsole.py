@@ -70,12 +70,11 @@ def keyboard_handler(event, wnd):
 # commands registered by other modules
 @reloadable
 class ExtentionCommands:
-    def __init__(self):
+    def __init__(self, proxy):
         self.extensions = {}
 
-    def _reload(self, other):
-        self.__init__()
-        self.extensions.update(other.extensions)
+    def _reload(self, other, proxy):
+        self.extensions = other.extensions
 
 extensionCommands = None
 

@@ -8,7 +8,7 @@ import traceback
 @reloadable
 class GameObject:
     '''Base class for all entities in the game'''
-    def __init__(self):
+    def __init__(self, proxy):
         self.components = []
         self._enabled = True
         self.OnEnable = Event()
@@ -27,16 +27,10 @@ class GameObject:
                 self.OnEnable(self, False)
         self._enabled = value
 
-    def addComponent(self, cmp):
-        """Better not use this for reloadable objects"""
-        self.components.append(cmp)
-        cmp.owner = self
-        self.OnEnable.append(cmp.onOnwerEnable)
-
     def addComponent(self, cmp, proxy):
         self.components.append(cmp)
         cmp.owner = proxy
-        #self.OnEnable.append(cmp.onOnwerEnable)
+        self.OnEnable.append(cmp.onOnwerEnable)
 
     def removeComponent(self, cmp):
         self.components.remove(cmp)
@@ -46,13 +40,10 @@ class GameObject:
         except Exception:
             traceback.print_exc()
 
-    def findComponents(self, ctype):
-        return (x for x in self.components if isinstance(x, ctype))
-
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.components = other.components
-        self.OnEnable = other.OnEnable
         self._enabled = other._enabled
+        self.OnEnable = other.OnEnable
         
         
              

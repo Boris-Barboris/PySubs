@@ -4,6 +4,7 @@ import sys
 import weakref
 import inspect
 import traceback
+import types
 
 module_heap = {}
         
@@ -18,21 +19,42 @@ def reloadable(cls):
             desired_parent = base_class._Reloadable__cls
             desired_parents.append(desired_parent)
         else:
+            # ok, it just a normal base class
             desired_parents.append(base_class)
     
     # now let's redefine cls as class, derived from unproxied classes
-    # there can be metaclasses other than type, so we'll probably unhardcode 
-    # this bit later
+    # there can be metaclasses other than type, but that is not handled here
     cls = type(cls.__name__, tuple(desired_parents), dict(cls.__dict__))
 
+    # in order to provide transparrent access to class methods we need to
+    # define our own metaclass
     class MetaReloadable(type):
         def __getattr__(_cls, name):
             return cls.__getattribute__(cls, name)
         # we need to handle user inheriting reloadable classes without
         # decorator, so there are no inconsistencies in the class hierarchy
         def __new__(self, name, bases, fields):
+            # placeholder call to type, because it's not yet implemented
             r = type.__new__(self, name, bases, fields)
             return r
+
+    # proxy to wrap bound methods and redirect them to proxy reloadable
+    # first, and then bound to underlying object symbolically
+    class MethodProxy:
+        def __init__(self, proxy, methodname):
+            self.proxy = proxy
+            self.methodname = methodname
+
+        def __call__(self, *args, **kwargs):
+            return self.proxy.__getattr__(self.methodname,
+                                            True)(*args, **kwargs)
+
+        def __eq__(self, other):
+            return (self.proxy is other.proxy) and \
+                   (self.methodname == other.methodname)
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
 
     '''Decorate class in order to make it's instances reloadable'''
     class Reloadable(metaclass=MetaReloadable):
@@ -44,11 +66,7 @@ def reloadable(cls):
             _cls = Reloadable.__cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
-            rld_cntr = getattr(self.__obj, '__init_rld__', None)
-            if rld_cntr:
-                self.__obj.__init_rld__(self, *args, **kwargs)
-            else:
-                self.__obj.__init__(*args, **kwargs)
+            self.__obj.__init__(self, *args, **kwargs)
             # Let's register it in global hash
             self.__register()
 
@@ -58,11 +76,7 @@ def reloadable(cls):
             _cls = Reloadable.__cls
             # allocate and initialize wrapped instance
             self.__obj = _cls.__new__(_cls)
-            rld_cntr = getattr(self.__obj, '__init_rld__', None)
-            if rld_cntr:
-                self.__obj.__init_rld__(self, *args, **kwargs)
-            else:
-                self.__obj.__init__(*args, **kwargs)
+            self.__obj.__init__(self, *args, **kwargs)
             # Let's register it in global hash
             self.__register(_id)
 
@@ -82,8 +96,14 @@ def reloadable(cls):
             return obj
 
         # Let's provide easy attribute lookup without get()
-        def __getattr__(self, name):
-            return self.__obj.__getattribute__(name)
+        def __getattr__(self, name, rawMethod = False):
+            attr = self.__obj.__getattribute__(name)
+            # handle getting bound methods
+            if rawMethod:
+                return attr
+            elif type(attr) is types.MethodType:
+                return MethodProxy(self, name)
+            return attr
 
         # Transparent attribute setter
         def __setattr__(self, arg, value):
@@ -113,7 +133,7 @@ def reloadable(cls):
             reload_method = getattr(new_obj, '_reload', None)
             if reload_method:
                 try:
-                    new_obj._reload(self.__obj)
+                    new_obj._reload(self.__obj, proxy)
                 except Exception:
                     traceback.print_exc()
                     print('trying to create new object instead of reloading')
@@ -127,27 +147,13 @@ def reloadable(cls):
 
         def _try_init(self, new_obj):
             try:
-                # else try to find standard constuctors
-                init_rld = getattr(new_obj, '__init_rld__', None)
-                if init_rld is not None:
-                    new_obj.__init_rld__(self)
-                else:
-                    new_obj.__init__()
+                new_obj.__init__(self)
             except Exception:
                 traceback.print_exc()
 
         def __register(self, _id = None):
-            '''register instance in global map'''
+            '''register proxy instance in global map'''
             _cls = Reloadable.__cls
-            # since we support inheritance, we need to build a set of modules,
-            # that are used in this class hierarchy
-            #module_set = set()
-            #for base_class in inspect.getmro(_cls):
-            #    if base_class != object:
-            #        module_set.add(base_class.__module__)
-            #for mdl in module_set:
-                # subscribe on all base class modules reloading
-                    #self.__do_register(mdl, _id)
             self.__do_register(_cls.__module__, _id)
 
         def __do_register(self, mdl_name, _id):
@@ -161,7 +167,7 @@ def reloadable(cls):
                 new_dict[_id] = self
                 module_heap[mdl_name] = new_dict
 
-        # string representation should be fixed
+        # string representation need to be alterated
         def __repr__(self):
             _cls = Reloadable.__cls
             return '<' + reloadable.__module__ + '.reloadable(' + \
@@ -197,25 +203,27 @@ def unfreeze_module_instances(mdl_name):
 
 @reloadable
 class TestClass:
-    def __init__(self, num = 3):
+    def __init__(self, proxy, num = 3):
         self.a = num
 
     def prunt(self):
         print(self.a)
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.a = other.a
 
+@reloadable
 class ClassB(TestClass):
-    def __init__(self, num = 8):
+    def __init__(self, proxy, num = 8):
         self.a = num
 
 
 # tests
-
 def testReloadable():
     a = TestClass._persistent(1337, 3)
     a.prunt()
+    bound_method = a.prunt
+    bound_method()
     a._get().a = 4
     a.prunt()
     a.a = 5
