@@ -5,7 +5,8 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('Submarine', 'game.Submarine'),
-    ('FPSLabel', 'game.FPSLabel'))
+    ('FPSLabel', 'game.FPSLabel'),
+    ('CameraController', 'game.CameraController'))
 
 SCHED_ORDER = 40    # standard
 
@@ -25,5 +26,5 @@ player_sub = None
 fps_label = None
 
 def run():
-    player_sub.run(1.0 / 60.0)
+    player_sub.run(min(1.0 / 60.0, EngineCore.frame_time))
     fps_label.run()

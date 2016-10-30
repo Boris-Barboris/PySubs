@@ -2,6 +2,7 @@
 
 
 from sfml.graphics import *
+from engine.Event import Event
 
 
 class HTransformable:

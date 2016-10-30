@@ -59,13 +59,14 @@ class LabelObject(GameObject):
 
 @reloadable
 class LabelComponent(UIComposer.UIRenderable):
-    def __init__(self):
+    def __init_rld__(self, proxy):
         super(LabelComponent._get_cls(), self).__init__()
         self.transform = HTransformable()
         font = TextManager.load_font('calibri.ttf')
         self.text = Text('', font, 10)
         self.text.color = Color.WHITE
         self.highlighter = LabelHighlightComponent(self)
+        self.addComponent(self.highlighter, proxy)
         
 
     def OnUIRender(self, wnd):
@@ -92,7 +93,6 @@ class LabelComponent(UIComposer.UIRenderable):
         self.highlighter.update_rect()
 
     def _reload(self, other):
-        self.__init__()
         super(LabelComponent._get_cls(), self)._reload(other)
         self.transform = other.transform
         self.text = other.text
@@ -103,6 +103,8 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
     def __init__(self, label):
         self.label = label
         self.owner = label
+        self.orig_color = None
+        self.highlight_color = sfml.graphics.Color.YELLOW
         rect = label.transform.transform.transform_rectangle(
             label.text.global_bounds)
         super(LabelHighlightComponent._get_cls(), self).__init__(rect)
@@ -116,11 +118,15 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         self.OnRectangleChange(self)
 
     def onMouseEnterHandler(self):
-        self.label.text.color = sfml.graphics.Color.RED
+        self.orig_color = self.label.text.color
+        self.label.text.color = self.highlight_color
 
     def onMouseLeaveHandler(self):
-        self.label.text.color = sfml.graphics.Color.WHITE
+        if self.orig_color is not None:
+            self.label.text.color = self.orig_color
 
     def _reload(self, other):
         super(LabelHighlightComponent._get_cls(), self)._reload(other)
         self.label = other.label
+        self.highlight_color = other.highlight_color
+        self.orig_color = other.orig_color

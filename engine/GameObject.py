@@ -3,6 +3,8 @@
 from engine.Reloadable import reloadable
 from engine.Event import Event
 
+import traceback
+
 @reloadable
 class GameObject:
     '''Base class for all entities in the game'''
@@ -29,6 +31,7 @@ class GameObject:
         """Better not use this for reloadable objects"""
         self.components.append(cmp)
         cmp.owner = self
+        self.OnEnable.append(cmp.onOnwerEnable)
 
     def addComponent(self, cmp, proxy):
         self.components.append(cmp)
@@ -37,6 +40,10 @@ class GameObject:
     def removeComponent(self, cmp):
         self.components.remove(cmp)
         cmp.owner = None
+        try:
+            self.OnEnable.remove(cmp.onOnwerEnable)
+        except Exception:
+            traceback.print_exc()
 
     def findComponents(self, ctype):
         return (x for x in self.components if isinstance(x, ctype))
@@ -50,7 +57,11 @@ class GameObject:
              
 @reloadable
 class Component:
-    '''Base class for all components in the game'''
+    '''
+        Base class for all components in the game. 
+        Component can't exist without owner, be it another
+        component or game object.
+    '''
     def __init__(self, owner = None):
         self._enabled = True
         self.owner = owner
@@ -69,6 +80,17 @@ class Component:
             if self.enabled:
                 self.OnEnable(self, False)
         self._enabled = value
+
+    def addComponent(self, cmp, proxy):
+        cmp.owner = proxy
+        self.OnEnable.append(cmp.onOnwerEnable)
+
+    def removeComponent(self, cmp):
+        cmp.owner = None
+        try:
+            self.OnEnable.remove(cmp.onOnwerEnable)
+        except Exception:
+            traceback.print_exc()
 
     def onOnwerEnable(self, owner, val):
         if val and self._enabled:

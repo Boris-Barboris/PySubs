@@ -17,13 +17,14 @@
 # Actual, precise check is done via checkPoint function.
 # 
 # Reciever right under the mouse is called 'cursored', there are events to
-# handle that like OnMouseEnter and OnMouseLeave
+# handle that like OnMouseEnter and OnMouseLeave. 
 #
 # Possibly, in the future World overlay will migrate to physics Module.
 
 import sfml
 from sfml.graphics import Rectangle
 from sfml.system import Vector2
+import time
 
 from engine.Event import Event
 
@@ -34,12 +35,13 @@ from engine.OrderedDeque import WeakOrderedDeque
 
 import weakref
 
-
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
     ('IOBroker', 'engine.IOBroker'),
     ('WindowModule', 'engine.WindowModule'))
+
+SCHED_ORDER = 35    # some unmanaged recieves want to handle input every frame
 
 def onLoad(core):
     Logging.logMessage('InputManager is loading')
@@ -49,6 +51,9 @@ def onLoad(core):
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseEvent)
+    IOBroker.register_handler(handle_keyboard_event, sfml.window.KeyEvent)
+    IOBroker.register_handler(handle_focus_event, sfml.window.FocusEvent)
+    EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
     Logging.logMessage('InputManager is unloading')
@@ -56,6 +61,9 @@ def onUnload():
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseButtonEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseEvent)
+    IOBroker.unregister_handler(handle_keyboard_event, sfml.window.KeyEvent)
+    IOBroker.unregister_handler(handle_focus_event, sfml.window.FocusEvent)
+    EngineCore.unschedule_FIFO(SCHED_ORDER)
 
 
 inputManager = None
@@ -72,6 +80,7 @@ class InputManager:
         self.unmanaged = weakref.WeakSet()
         self.activeReciever = None
         self.cursored = None
+        self.focused = True
 
     def handle_mouse_event(self, event, wnd):
         if type(event) is sfml.window.MouseEvent:
@@ -91,17 +100,14 @@ class InputManager:
             if reciever is not None:
                 self.activeReciever = reciever
                 if self.cursored is not reciever:
-                    if self.cursored is not None:
-                        self.cursored.OnMouseLeave()
+                    self.clear_cursored()
                     reciever.OnMouseEnter()
                     self.cursored = reciever
-                if not reciever.handle_event(event, wnd):
+                if not reciever.handle_mouse_event(event, wnd):
                     return
             else:
-                self.activeReciever = False
-                if self.cursored is not None:
-                    self.cursored.OnMouseLeave()
-                self.cursored = None            
+                self.activeReciever = None
+                         
         # Overlay layer
         candidates = self.overlayHash.cell(point)
         if candidates is not None:
@@ -109,7 +115,7 @@ class InputManager:
                 key = lambda x: x.input_stack_el.index)
             reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
             if reciever is not None:
-                if not reciever.handle_event(event, wnd):
+                if not reciever.handle_mouse_event(event, wnd):
                     return
         # World layer
         candidates = self.worldHash.cell(point)
@@ -118,16 +124,39 @@ class InputManager:
                 key = lambda x: x.input_stack_el.index)
             reciever = next((x for x in sorted_cand if x.checkPoint(point)), None)
             if reciever is not None:
-                if not reciever.handle_event(event, wnd):
+                if not reciever.handle_mouse_event(event, wnd):
                     return
 
         if reciever is None:
-            if self.cursored is not None:
-                self.cursored.OnMouseLeave()
-            self.cursored = None
+            self.clear_cursored()
         # Unmanaged recievers
         for reciever in self.unmanaged:
-            reciever.handle_event(event, wnd)
+            reciever.handle_mouse_event(event, wnd)
+
+    def handle_focus_event(self, event, wnd):
+        if event.lost:
+            self.focused = False
+            self.clear_cursored()
+        elif event.gained:
+            self.focused = True
+
+    def handle_keyboard_event(self, event, wnd):
+        if self.activeReciever is not None:
+            res = self.activeReciever.handle_key_event(event, wnd)
+            if not res:
+                return
+        for reciever in self.unmanaged:
+            reciever.handle_key_event(event, wnd)
+
+    def handle_frame(self):
+        if self.focused:
+            for reciever in self.unmanaged:
+                reciever.handle_frame()
+
+    def clear_cursored(self):
+        if self.cursored is not None:
+            self.cursored.OnMouseLeave()
+        self.cursored = None   
 
     def _reload(self, other):
         self.uiManaged = other.uiManaged
@@ -143,6 +172,15 @@ class InputManager:
 
 def handle_mouse_event(event, wnd):
     inputManager.handle_mouse_event(event, wnd)
+
+def handle_keyboard_event(event, wnd):
+    inputManager.handle_keyboard_event(event, wnd)
+
+def handle_focus_event(event, wnd):
+    inputManager.handle_focus_event(event, wnd)
+
+def run():
+    inputManager.handle_frame()
 
 def OnUIRecieverEnable(component, value):
     if value:
@@ -171,10 +209,12 @@ class UIInputReciever(Component):
         self.OnMouseEnter = Event()
         self.OnMouseLeave = Event()
 
-    def handle_event(self, event, wnd):
+    def handle_mouse_event(self, event, wnd):
         if type(event) is sfml.window.MouseButtonEvent:
             self.input_stack_el.moveToHead()
-            return False
+        return False
+
+    def handle_key_event(self, event, wnd):
         return True
 
     def checkPoint(self, point):
@@ -188,3 +228,14 @@ class UIInputReciever(Component):
         self.input_hash_indx = other.input_hash_indx
         self.OnMouseEnter = other.OnMouseEnter
         self.OnMouseLeave = other.OnMouseLeave
+
+@reloadable
+class UnmanagedInputReciever:
+    def handle_mouse_event(self, event, wnd):
+        pass
+
+    def handle_key_event(self, event, wnd):
+        pass
+
+    def handle_frame(self, event, wnd):
+        pass

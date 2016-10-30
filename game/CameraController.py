@@ -1,9 +1,13 @@
 #   Copyright Alexander Baranin 2016
 
+import math
+import sys
+
 import sfml
 from sfml.system import Vector2
+from sfml.window import Keyboard
+
 from engine.Reloadable import reloadable
-import math
 
 
 _import_modules = (
@@ -11,6 +15,13 @@ _import_modules = (
     ('Logging', 'engine.Logging'),
     ('WorldComposer', 'engine.WorldComposer'),
     ('InputManager', 'engine.InputManager'))
+
+_subscribe_modules = [
+    'engine.InputManager']
+
+from engine.EngineCore import handle_imports
+
+handle_imports(sys.modules[__name__])
 
 def onLoad(core):
     Logging.logMessage('CameraController is loading')
@@ -24,20 +35,24 @@ def onUnload():
 controller = None
 
 POSITIONAL_ZOOM = True
+KEY_PAN_SPEED = 2000.0
 
 @reloadable
-class CameraController:
+class CameraController(InputManager.UnmanagedInputReciever):
     def __init__(self):
         self.panning = False
         self.prev_pos = None
 
-    def handle_event(self, event, wnd):
+    def handle_mouse_event(self, event, wnd):
         if type(event) is sfml.window.MouseWheelEvent:
             self.handle_zoom(event, wnd)
         elif type(event) is sfml.window.MouseButtonEvent:
             self.handle_click(event, wnd)
         elif type(event) is sfml.window.MouseMoveEvent:
             self.handle_move(event, wnd)
+
+    def handle_frame(self):
+        self.handle_key()
 
     def handle_zoom(self, event, wnd):
         delta = event.delta
@@ -49,7 +64,7 @@ class CameraController:
         if delta > 0 and POSITIONAL_ZOOM and camera.scale > 0.05:
             pos = event.position
             size = wnd.size()
-            shift = (pos - size * 0.5) * scale_shift * 0.5
+            shift = (pos - size * 0.5) * scale_shift * 0.75
             camera.position += shift
 
     def handle_click(self, event, wnd):
@@ -69,3 +84,15 @@ class CameraController:
             camera = WorldComposer.composer.camera
             camera.position -= delta * camera.scale
             self.prev_pos = event.position
+
+    def handle_key(self):
+        dt = min(EngineCore.frame_time, 0.1)
+        camera = WorldComposer.composer.camera
+        if Keyboard.is_key_pressed(Keyboard.RIGHT):
+            camera.position += Vector2(KEY_PAN_SPEED, 0.0) * camera.scale * dt
+        if Keyboard.is_key_pressed(Keyboard.UP):
+            camera.position += Vector2(0.0, -KEY_PAN_SPEED) * camera.scale * dt
+        if Keyboard.is_key_pressed(Keyboard.LEFT):
+            camera.position += Vector2(-KEY_PAN_SPEED, 0.0) * camera.scale * dt
+        if Keyboard.is_key_pressed(Keyboard.DOWN):
+            camera.position += Vector2(0.0, KEY_PAN_SPEED) * camera.scale * dt

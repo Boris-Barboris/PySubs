@@ -4,6 +4,7 @@ import importlib
 import imp
 import traceback
 import sys
+import time
 
 from engine.Reloadable import freeze_module_instances, \
     unfreeze_module_instances, reload_module_instances
@@ -117,8 +118,14 @@ def request_shutdown():
     global _shutdown_flag
     _shutdown_flag = True
 
+_time_hp = None
+frame_time = 0.0
+
 def run():
     '''Main function that controls code execution'''
+    global _time_hp
+    if _time_hp is None:
+        _time_hp = time.clock()
     while True:
         for order_id in ordered_fifo_ids:
             func = fifo_queue[order_id]
@@ -131,6 +138,10 @@ def run():
             if _shutdown_flag:
                 print('Terminating EngineCore normally...')
                 return
+        new_time = time.clock()
+        global frame_time
+        frame_time = new_time - _time_hp
+        _time_hp = new_time
 
 
 
