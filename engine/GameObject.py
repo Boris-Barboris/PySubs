@@ -51,10 +51,9 @@ class GameObject:
 class Component:
     '''
         Base class for all components in the game. 
-        Component can't exist without owner, be it another
-        component or game object.
+        Component can't exist without owner.
     '''
-    def __init__(self, owner = None):
+    def __init__(self, proxy, owner = None):
         self._enabled = True
         self.owner = owner
         self.OnEnable = Event()
@@ -66,23 +65,12 @@ class Component:
     @enabled.setter
     def enabled(self, value):
         if value:
-            if not self._enabled and self.owner.enabled:
+            if not self.enabled:
                 self.OnEnable(self, True)
         else:
             if self.enabled:
                 self.OnEnable(self, False)
         self._enabled = value
-
-    def addComponent(self, cmp, proxy):
-        cmp.owner = proxy
-        self.OnEnable.append(cmp.onOnwerEnable)
-
-    def removeComponent(self, cmp):
-        cmp.owner = None
-        try:
-            self.OnEnable.remove(cmp.onOnwerEnable)
-        except Exception:
-            traceback.print_exc()
 
     def onOnwerEnable(self, owner, val):
         if val and self._enabled:
@@ -90,7 +78,7 @@ class Component:
         if not val and self.enabled:
             self.OnEnable(self, False)
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.OnEnable = other.OnEnable
         self._enabled = other._enabled
         self.owner = other.owner

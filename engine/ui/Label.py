@@ -5,7 +5,8 @@ import sfml
 
 from engine.Reloadable import reloadable
 from engine.GameObject import *
-from engine.HTransformable import HTransformable
+from engine.HTransformable import *
+from engine.Event import Event
 
 from sfml.graphics import *
 from sfml.system import Vector2
@@ -36,12 +37,14 @@ def onUnload():
 @reloadable
 class LabelObject(GameObject):
     """Example label object"""
-    def __init_rld__(self, proxy):
-        super(LabelObject._get_cls(), self).__init__()
-        self.transform = HTransformable()
+    def __init__(self, proxy):
+        super(LabelObject._get_cls(), self).__init__(proxy)
+        self.transform = HPosition()
         self._label = LabelComponent()
         self.addComponent(self._label, proxy)
         self.label.transform.parent = self.transform
+        self._highlight = LabelHighlightComponent(self._label)
+        self.addComponent(self._highlight, proxy)
 
     @property
     def label(self):
@@ -51,28 +54,26 @@ class LabelObject(GameObject):
     def text(self):
         return self._label.text
 
-    def _reload(self, other):
-        super(LabelObject._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(LabelObject._get_cls(), self)._reload(other, proxy)
         self.transform = other.transform
         self._label = other.label
+        self._highlight = other._highlight
 
 
 @reloadable
 class LabelComponent(UIComposer.UIRenderable):
-    def __init_rld__(self, proxy):
-        super(LabelComponent._get_cls(), self).__init__()
-        self.transform = HTransformable()
+    def __init__(self, proxy):
+        super(LabelComponent._get_cls(), self).__init__(proxy)
+        self.transform = HPosition()
         font = TextManager.load_font('calibri.ttf')
         self.text = Text('', font, 10)
         self.text.color = Color.WHITE
-        self.highlighter = LabelHighlightComponent(self)
-        self.addComponent(self.highlighter, proxy)
-        
+        self.OnRectUpdate = Event()
 
     def OnUIRender(self, wnd):
-        render_state = RenderStates(BlendMode.BLEND_ALPHA, 
-                                        self.transform.transform)
-        wnd.draw(self.text, render_state)
+        self.text.position = self.transform.position
+        wnd.draw(self.text)
 
     @property
     def string(self):
@@ -81,7 +82,8 @@ class LabelComponent(UIComposer.UIRenderable):
     @string.setter
     def string(self, value):
         self.text.string = value
-        self.highlighter.update_rect()
+        self.OnRectUpdate(self, self.transform.transform_rect(
+            self.text.global_bounds))
     
     @property
     def character_size(self):
@@ -90,31 +92,29 @@ class LabelComponent(UIComposer.UIRenderable):
     @character_size.setter
     def character_size(self, value):
         self.text.character_size = value
-        self.highlighter.update_rect()
+        self.OnRectUpdate(self, self.transform.transform_rect(
+            self.text.global_bounds))
 
-    def _reload(self, other):
-        super(LabelComponent._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(LabelComponent._get_cls(), self)._reload(other, proxy)
         self.transform = other.transform
         self.text = other.text
-        self.highlighter = other.highlighter
+        self.OnRectUpdate = other.OnRectUpdate
 
 @reloadable
 class LabelHighlightComponent(InputManager.UIInputReciever):
-    def __init__(self, label):
+    def __init__(self, proxy, label):
+        super(LabelHighlightComponent._get_cls(), self).__init__(proxy, 
+                                                                 Rectangle())
         self.label = label
-        self.owner = label
+        self.label.OnRectUpdate.append(proxy.update_rect)
         self.orig_color = None
         self.highlight_color = sfml.graphics.Color.YELLOW
-        rect = label.transform.transform.transform_rectangle(
-            label.text.global_bounds)
-        super(LabelHighlightComponent._get_cls(), self).__init__(rect)
-        self.OnMouseEnter.append(self.onMouseEnterHandler)
-        self.OnMouseLeave.append(self.onMouseLeaveHandler)
+        self.OnMouseEnter.append(proxy.onMouseEnterHandler)
+        self.OnMouseLeave.append(proxy.onMouseLeaveHandler)
 
-    def update_rect(self):
-        point = self.label.transform.transform.transform_point(
-            self.label.text.global_bounds.position)
-        self.rect = Rectangle(point, self.label.text.global_bounds.size)
+    def update_rect(self, label, rect):
+        self.rect = rect
         self.OnRectangleChange(self)
 
     def onMouseEnterHandler(self):
@@ -125,8 +125,8 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         if self.orig_color is not None:
             self.label.text.color = self.orig_color
 
-    def _reload(self, other):
-        super(LabelHighlightComponent._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(LabelHighlightComponent._get_cls(), self)._reload(other, proxy)
         self.label = other.label
         self.highlight_color = other.highlight_color
         self.orig_color = other.orig_color

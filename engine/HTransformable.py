@@ -2,6 +2,7 @@
 
 
 from sfml.graphics import *
+from sfml.system import Vector2
 from engine.Event import Event
 
 
@@ -9,11 +10,6 @@ class HTransformable:
     def __init__(self):
         self.transformable = Transformable()
         self.parent = None
-        self.dirty = True
-
-    @property
-    def trmble(self):
-        return self._transformable
 
     @property
     def ltransform(self):
@@ -21,14 +17,11 @@ class HTransformable:
 
     @property
     def transform(self):
-        if not self.dirty:
-            return self._cache
         if self.parent is not None:
             trans = self.parent.transform
-            return trans.combine(self.transformable.transform)
-        self._cache = Transform().combine(self.transformable.transform)
-        self.dirty = False
-        return self._cache
+            trans.combine(self.transformable.transform)
+            return trans
+        return self.transformable.transform
 
     @property
     def lposition(self):
@@ -37,7 +30,6 @@ class HTransformable:
     @lposition.setter
     def lposition(self, value):
         self.transformable.position = value
-        self.dirty = True
 
     @property
     def lrotation(self):
@@ -46,7 +38,6 @@ class HTransformable:
     @lrotation.setter
     def lrotation(self, value):
         self.transformable.rotation = value
-        self.dirty = True
 
     @property
     def lratio(self):
@@ -55,12 +46,69 @@ class HTransformable:
     @lratio.setter
     def lratio(self, velue):
         self.transformable.ratio = value
-        self.dirty = True
 
     def lrotate(self, value):
         self.transformable.rotate(value)
-        self.dirty = True
 
-    def ltranslate(self, value):
+    def lmove(self, value):
         self.transformable.move(value)
-        self.dirty = True
+
+
+class HPosition:
+    def __init__(self):
+        self._position = Vector2()
+        self.parent = None
+
+    @property
+    def lposition(self):
+        return self._position
+
+    @lposition.setter
+    def lposition(self, value):
+        self._position = value
+
+    @property
+    def position(self):
+        if self.parent is not None:
+            pos = self.parent.position
+            return pos + self._position
+        else:
+            return self._position
+
+    def lmove(self, offset):
+        self._position += offset
+
+    def transform_rect(self, rect):
+        pos = rect.position
+        return Rectangle(pos + self.position, rect.size)
+
+    def transform_point(self, point):
+        return self.position + point
+
+
+def testTransformable():
+    a = HPosition()
+    b = HPosition()
+    b.parent = a
+    b.lposition = Vector2(3.0, 4.0)
+    d = b.transform_point(Vector2(1.0, 1.0))
+    e = b.position
+    print(e)
+    e.x = 8
+    print(e)
+    
+    a = Transform()
+    b = a
+    q = b.translate(Vector2(10.0, 2.0))
+    print(a)
+    print(a.transform_point(Vector2(0.0, 0.0)))
+    print(b.transform_point(Vector2(0.0, 0.0)))
+    print(q.transform_point(Vector2(0.0, 0.0)))
+    c = Transform()
+    q2 = c.translate(Vector2(1.0, 1.0))
+    d = c
+    k = b.combine(d)
+    print(b.transform_point(Vector2(0.0, 0.0)))
+    print(d.transform_point(Vector2(0.0, 0.0)))
+    print(k.transform_point(Vector2(0.0, 0.0)))
+    pass    

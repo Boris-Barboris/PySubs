@@ -29,8 +29,8 @@ class ShipCtrlState:
 
 @reloadable
 class ShipDynamics(Component):
-    def __init__(self):
-        super(ShipDynamics._get_cls(), self).__init__()
+    def __init__(self, proxy):
+        super(ShipDynamics._get_cls(), self).__init__(proxy)
         self.mass = 500.0
         self.moi = 500.0
         self.velocity = Vector2(0.0, 0.0)
@@ -45,9 +45,9 @@ class ShipDynamics(Component):
         self.throttle_spd = 0.5
         self.engine_throttle = 0.0
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.__init__()
-        super(ShipDynamics._get_cls(), self)._reload(other)
+        super(ShipDynamics._get_cls(), self)._reload(other, proxy)
         self.velocity = other.velocity
         self.angvel = other.angvel
         self.engine_throttle = other.engine_throttle
@@ -87,4 +87,4 @@ class ShipDynamics(Component):
         self.angvel += dt * (drag_torque + rudder_torque) / self.moi
         self.velocity += (drag + thrust_vec + lift) * dt / self.mass
         self.owner.transform.lrotate(rad2dgr(dt * self.angvel))
-        self.owner.transform.ltranslate(self.velocity * dt)
+        self.owner.transform.lmove(self.velocity * dt)

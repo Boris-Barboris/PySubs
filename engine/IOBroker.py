@@ -37,16 +37,11 @@ event_map = None        # static reloadable event map
 
 @reloadable
 class EventHandlerMap:
-    def __init__(self):
+    def __init__(self, proxy):
         self._handlers = {}
 
-    def _reload(self, other):
-        self.__init__()
-        for event in other._handlers:
-            if event in self._handlers:
-                self._handlers[event].extend(other._handlers[event])
-            else:
-                self._handlers[event] = other._handlers[event]
+    def _reload(self, other, proxy):
+        self._handlers = other._handlers
 
     def register_handler(self, f, event_type):
         if event_type in self._handlers:

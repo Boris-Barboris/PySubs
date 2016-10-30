@@ -36,8 +36,8 @@ def onUnload():
 
 @reloadable
 class PlayerSubmarine(GameObject):
-    def __init_rld__(self, proxy):
-        super(PlayerSubmarine._get_cls(), self).__init__()
+    def __init__(self, proxy):
+        super(PlayerSubmarine._get_cls(), self).__init__(proxy)
         Logging.logMessage('Creating player submarine')
         self.transform = HTransformable()
         self.transform.lrotation = 0.0
@@ -63,8 +63,8 @@ class PlayerSubmarine(GameObject):
         if (self.model.screw_rot < -2 * math.pi):
             self.model.screw_rot += 2 * math.pi
 
-    def _reload(self, other):
-        super(PlayerSubmarine._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(PlayerSubmarine._get_cls(), self)._reload(other, proxy)
         self.model = other.model
         self.dynamics = other.dynamics
         self.transform = other.transform
@@ -75,9 +75,12 @@ class PlayerSubmarine(GameObject):
 
 @reloadable
 class SubmarineModel(WorldComposer.WorldRenderable):
-    def __init__(self):
-        super(SubmarineModel._get_cls(), self).__init__()
+    def __init__(self, proxy):
+        super(SubmarineModel._get_cls(), self).__init__(proxy)
         self.transform = HTransformable()
+        self.init_model()
+
+    def init_model(self):
         # parts of model:
 
         # hull
@@ -153,9 +156,9 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         self.blade = blade
         self.screw_rot = 0.0    # screw rotation                    
 
-    def _reload(self, other):
-        self.__init__()
-        super(SubmarineModel._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(SubmarineModel._get_cls(), self)._reload(other, proxy)
+        self.init_model()
         self.transform = other.transform
         self.screw_rot = other.screw_rot
 
@@ -194,16 +197,19 @@ class SubmarineModel(WorldComposer.WorldRenderable):
         
 @reloadable
 class SubmarineLabel(OverlayComposer.OverlayRenderable):
-    def __init__(self):
-        super(SubmarineLabel._get_cls(), self).__init__()
+    def __init__(self, proxy):
+        super(SubmarineLabel._get_cls(), self).__init__(proxy)
+        self.init_shape()
+
+    def init_shape(self):
         self.shapes = OverlayLabels.submarine_label.shapes
         self.color = Color(100, 100, 255, 255)
         self.min_zoom = 1.0
         self.full_zoom = 1.5
 
-    def _reload(self, other):
-        self.__init__()
-        super(SubmarineLabel._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(SubmarineLabel._get_cls(), self)._reload(other, proxy)
+        self.init_shape()
 
     def OnOverlayRender(self, wnd, wnd_size, camera):
         alpha = 0

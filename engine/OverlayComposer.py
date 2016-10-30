@@ -32,7 +32,7 @@ composer = None
 
 @reloadable
 class OverlayComposer:
-    def __init__(self):
+    def __init__(self, proxy):
         self.components = weakref.WeakSet()
 
     def run(self):
@@ -45,7 +45,7 @@ class OverlayComposer:
         for c in self.components:
             c.OnOverlayRender(wnd, wnd_size, camera)
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.components = other.components
 
 def onComponentEnable(obj, enabled):
@@ -59,9 +59,9 @@ def onComponentEnable(obj, enabled):
 
 @reloadable
 class OverlayRenderable(Component):
-    def __init__(self, owner = None):
-        super(OverlayRenderable._get_cls(), self).__init__(owner)
-        composer.components.add(self)
+    def __init__(self, proxy, owner = None):
+        super(OverlayRenderable._get_cls(), self).__init__(proxy, owner)
+        composer.components.add(proxy)
         self.OnEnable.append(onComponentEnable)
 
     def OnOverlayRender(self, wnd, wnd_size, camera):

@@ -133,7 +133,7 @@ def reloadable(cls):
             reload_method = getattr(new_obj, '_reload', None)
             if reload_method:
                 try:
-                    new_obj._reload(self.__obj, proxy)
+                    new_obj._reload(self.__obj, self)
                 except Exception:
                     traceback.print_exc()
                     print('trying to create new object instead of reloading')

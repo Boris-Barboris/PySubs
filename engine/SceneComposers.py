@@ -38,12 +38,12 @@ composers = None
 
 @reloadable
 class Composers:
-    def __init__(self):
+    def __init__(self, proxy):
         self.WorldLayer = None
         self.OverlayLayer = None
         self.UILayer = None
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.WorldLayer = other.WorldLayer
         self.OverlayLayer = other.OverlayLayer
         self.UILayer = other.UILayer

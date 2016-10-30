@@ -35,7 +35,7 @@ class Window:
     wnd_name = 'PySubs'
     vsync = True
 
-    def __init__(self, name = wnd_name, 
+    def __init__(self, proxy, name = wnd_name, 
                  size = wnd_size, 
                  clr = background_color):
         self.settings = window.ContextSettings(0, 0, 4, 2, 0)
@@ -87,7 +87,7 @@ class Window:
             self.wnd_position = self.wnd_handle.position
         self.wnd_handle.clear(sfml.Color(*self.background_color))
 
-    def _reload(self, other):
+    def _reload(self, other, proxy):
         self.__init__()
         self.set_fullscreen(other.is_fullscreen())
         # preserve window size

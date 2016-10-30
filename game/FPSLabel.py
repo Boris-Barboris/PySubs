@@ -26,8 +26,8 @@ def onUnload():
 
 @reloadable
 class FPSLabel(Label.LabelObject):
-    def __init_rld__(self, proxy):
-        super(FPSLabel._get_cls(), self).__init_rld__(proxy)
+    def __init__(self, proxy):
+        super(FPSLabel._get_cls(), self).__init__(proxy)
         self.avg_fps = 60.0
         self.time_hp = time.clock()
         self.label.character_size = 20
@@ -38,8 +38,7 @@ class FPSLabel(Label.LabelObject):
         self.avg_fps = 0.8 * self.avg_fps + 0.2 / frame_time
         self.label.string = "{0:.1f}".format(self.avg_fps)
 
-    def _reload(self, other):
-        super(FPSLabel._get_cls(), self)._reload(other)
+    def _reload(self, other, proxy):
+        super(FPSLabel._get_cls(), self)._reload(other, proxy)
         self.avg_fps = other.avg_fps
         self.time_hp = other.time_hp
-        #self.text.character_size = 20

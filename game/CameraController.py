@@ -39,7 +39,7 @@ KEY_PAN_SPEED = 2000.0
 
 @reloadable
 class CameraController(InputManager.UnmanagedInputReciever):
-    def __init__(self):
+    def __init__(self, proxy):
         self.panning = False
         self.prev_pos = None
 

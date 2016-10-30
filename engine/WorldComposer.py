@@ -31,20 +31,15 @@ def onUnload():
 
 composer = None
 
-@reloadable
 class Camera:
     def __init__(self):
         self.position = Vector2(0, 0)
         # how many game units in 1 pixel:
         self.scale = 0.1
 
-    def _reload(self, other):
-        self.position = other.position
-        self.scale = other.scale
-
 @reloadable
 class WorldComposer:
-    def __init__(self):
+    def __init__(self, proxy):
         self.components = weakref.WeakSet()
         self.camera = Camera()
         self.view = View()
@@ -65,11 +60,11 @@ class WorldComposer:
              self.camera.position.y - wnd_size.y * 0.5 * self.camera.scale),
             (wnd_size.x * self.camera.scale, wnd_size.y * self.camera.scale)))
 
-    def _reload(self, other):
-        self.__init__()
+    def _reload(self, other, proxy):
         self.components = other.components
         self.camera = other.camera
         self.view = other.view
+
 
 def onComponentEnable(obj, enabled):
     if enabled:
@@ -82,9 +77,9 @@ def onComponentEnable(obj, enabled):
 
 @reloadable
 class WorldRenderable(Component):
-    def __init__(self, owner = None):
-        super(WorldRenderable._get_cls(), self).__init__(owner)
-        composer.components.add(self)
+    def __init__(self, proxy, owner = None):
+        super(WorldRenderable._get_cls(), self).__init__(proxy, owner)
+        composer.components.add(proxy)
         self.OnEnable.append(onComponentEnable)
 
     def OnWorldRender(self, wnd, camera):

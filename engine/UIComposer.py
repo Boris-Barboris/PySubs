@@ -31,7 +31,7 @@ composer = None
 
 @reloadable
 class UIComposer:
-    def __init__(self):
+    def __init__(self, proxy):
         self.components = weakref.WeakSet()
 
     def run(self):
@@ -44,8 +44,7 @@ class UIComposer:
         for c in self.components:
             c.OnUIRender(wnd)
 
-    def _reload(self, other):
-        self.__init__()
+    def _reload(self, other, proxy):
         self.components = other.components
 
 def onComponentEnable(obj, enabled):
@@ -59,9 +58,9 @@ def onComponentEnable(obj, enabled):
 
 @reloadable
 class UIRenderable(Component):
-    def __init__(self, owner = None):
-        super(UIRenderable._get_cls(), self).__init__(owner)
-        composer.components.add(self)
+    def __init__(self, proxy, owner = None):
+        super(UIRenderable._get_cls(), self).__init__(proxy, owner)
+        composer.components.add(proxy)
         self.OnEnable.append(onComponentEnable)
 
     def OnUIRender(self, wnd):
