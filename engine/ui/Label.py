@@ -82,8 +82,7 @@ class LabelComponent(UIComposer.UIRenderable):
     @string.setter
     def string(self, value):
         self.text.string = value
-        self.OnRectUpdate(self, self.transform.transform_rect(
-            self.text.global_bounds))
+        self.OnRectUpdate(self._proxy, self.text.global_bounds)
     
     @property
     def character_size(self):
@@ -92,8 +91,7 @@ class LabelComponent(UIComposer.UIRenderable):
     @character_size.setter
     def character_size(self, value):
         self.text.character_size = value
-        self.OnRectUpdate(self, self.transform.transform_rect(
-            self.text.global_bounds))
+        self.OnRectUpdate(self._proxy, self.text.global_bounds)
 
     def _reload(self, other, proxy):
         super(LabelComponent._get_cls(), self)._reload(other, proxy)
@@ -107,7 +105,7 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         super(LabelHighlightComponent._get_cls(), self).__init__(proxy, 
                                                                  Rectangle())
         self.label = label
-        self.label.OnRectUpdate.append(proxy.update_rect)
+        self.label.OnRectUpdate.append(proxy._mproxy('update_rect'))
         self.orig_color = None
         self.highlight_color = sfml.graphics.Color.YELLOW
         self.OnMouseEnter.append(proxy._mproxy('onMouseEnterHandler'))
@@ -115,7 +113,7 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
 
     def update_rect(self, label, rect):
         self.rect = rect
-        self.OnRectangleChange(self)
+        self.OnRectangleChange(self._proxy)
 
     def onMouseEnterHandler(self):
         self.orig_color = self.label.text.color
@@ -128,5 +126,5 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
     def _reload(self, other, proxy):
         super(LabelHighlightComponent._get_cls(), self)._reload(other, proxy)
         self.label = other.label
-        self.highlight_color = sfml.graphics.Color.RED
+        self.highlight_color = sfml.graphics.Color.YELLOW
         self.orig_color = other.orig_color

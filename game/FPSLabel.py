@@ -14,6 +14,7 @@ _subscribe_modules = [
     'engine.ui.Label']
 
 from engine.EngineCore import handle_imports
+from sfml.system import Vector2
 
 handle_imports(sys.modules[__name__])
 
@@ -42,3 +43,4 @@ class FPSLabel(Label.LabelObject):
         super(FPSLabel._get_cls(), self)._reload(other, proxy)
         self.avg_fps = other.avg_fps
         self.time_hp = other.time_hp
+        self.transform.lposition = Vector2(0.0, 0.0)

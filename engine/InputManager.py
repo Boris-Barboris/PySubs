@@ -204,7 +204,7 @@ class UIInputReciever(Component):
         super(UIInputReciever._get_cls(), self).__init__(proxy)
         self.rect = rect
         self.OnEnable.append(OnUIRecieverEnable)
-        self.OnEnable(self, True)
+        self.OnEnable(proxy, True)
         self.OnRectangleChange = Event()
         self.OnRectangleChange.append(OnUIRecieverRectUpdate)
         self.OnMouseEnter = Event()

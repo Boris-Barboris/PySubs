@@ -12,6 +12,7 @@ class GameObject:
         self.components = []
         self._enabled = True
         self.OnEnable = Event()
+        self._proxy = proxy
 
     @property
     def enabled(self):
@@ -21,10 +22,10 @@ class GameObject:
     def enabled(self, value):
         if value:
             if not self._enabled:
-                self.OnEnable(self, True)
+                self.OnEnable(self._proxy, True)
         else:
             if self._enabled:
-                self.OnEnable(self, False)
+                self.OnEnable(self._proxy, False)
         self._enabled = value
 
     def addComponent(self, cmp, proxy):
@@ -41,9 +42,10 @@ class GameObject:
             traceback.print_exc()
 
     def _reload(self, other, proxy):
+        self._proxy = proxy
         self.components = other.components
         self._enabled = other._enabled
-        self.OnEnable = other.OnEnable
+        self.OnEnable = other.OnEnable        
         
         
              
@@ -57,6 +59,7 @@ class Component:
         self._enabled = True
         self.owner = owner
         self.OnEnable = Event()
+        self._proxy = proxy
 
     @property
     def enabled(self):
@@ -66,19 +69,20 @@ class Component:
     def enabled(self, value):
         if value:
             if not self.enabled:
-                self.OnEnable(self, True)
+                self.OnEnable(self._proxy, True)
         else:
             if self.enabled:
-                self.OnEnable(self, False)
+                self.OnEnable(self._proxy, False)
         self._enabled = value
 
     def onOwnerEnable(self, owner, val):
         if val and self._enabled:
-            self.OnEnable(self, True)
+            self.OnEnable(self._proxy, True)
         if not val and self.enabled:
-            self.OnEnable(self, False)
+            self.OnEnable(self._proxy, False)
 
     def _reload(self, other, proxy):
+        self._proxy = proxy
         self.OnEnable = other.OnEnable
         self._enabled = other._enabled
         self.owner = other.owner

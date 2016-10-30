@@ -15,7 +15,8 @@ def onLoad(core):
     global player_sub
     player_sub = Submarine.PlayerSubmarine._persistent('GameLogic.player_sub')
     global fps_label
-    fps_label = FPSLabel.FPSLabel._persistent('GameLogic.fps_label')
+    #fps_label = FPSLabel.FPSLabel._persistent('GameLogic.fps_label')
+    fps_label = FPSLabel.FPSLabel()
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
