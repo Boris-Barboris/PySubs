@@ -46,8 +46,7 @@ def reloadable(cls):
             self.methodname = methodname
 
         def __call__(self, *args, **kwargs):
-            return self.proxy.__getattr__(self.methodname,
-                                            True)(*args, **kwargs)
+            return self.proxy.__getattr__(self.methodname)(*args, **kwargs)
 
         def __eq__(self, other):
             return (self.proxy is other.proxy) and \
@@ -96,14 +95,12 @@ def reloadable(cls):
             return obj
 
         # Let's provide easy attribute lookup without get()
-        def __getattr__(self, name, rawMethod = False):
-            attr = self.__obj.__getattribute__(name)
-            # handle getting bound methods
-            if rawMethod:
-                return attr
-            elif type(attr) is types.MethodType:
-                return MethodProxy(self, name)
-            return attr
+        def __getattr__(self, name):
+            return self.__obj.__getattribute__(name)                
+
+        # Get bound method proxy
+        def _mproxy(self, name):
+            return MethodProxy(self, name)
 
         # Transparent attribute setter
         def __setattr__(self, arg, value):

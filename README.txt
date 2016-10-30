@@ -132,6 +132,7 @@ reference to proxy object, that will hold the instance, that is constructed now.
 old one, instead of __init__ initializer. If it is not provided, parameterless
 __init__(self, proxy) is tried.
     - currently, bound methods point to underlying object, wich is incorrect.
-It's being worked on.
+Use _mproxy(method_name) to get method, that binds symbolically via proxy. That
+is the way to go when working with events.
     - you should never derive reloadable class by unreloadable one. It's not
-handlede, it will not work.
+handled, it will not work.

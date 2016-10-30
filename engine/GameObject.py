@@ -30,13 +30,13 @@ class GameObject:
     def addComponent(self, cmp, proxy):
         self.components.append(cmp)
         cmp.owner = proxy
-        self.OnEnable.append(cmp.onOnwerEnable)
+        self.OnEnable.append(cmp._mproxy('onOwnerEnable'))
 
     def removeComponent(self, cmp):
         self.components.remove(cmp)
         cmp.owner = None
         try:
-            self.OnEnable.remove(cmp.onOnwerEnable)
+            self.OnEnable.remove(cmp._mproxy('onOwnerEnable'))
         except Exception:
             traceback.print_exc()
 
@@ -72,7 +72,7 @@ class Component:
                 self.OnEnable(self, False)
         self._enabled = value
 
-    def onOnwerEnable(self, owner, val):
+    def onOwnerEnable(self, owner, val):
         if val and self._enabled:
             self.OnEnable(self, True)
         if not val and self.enabled:

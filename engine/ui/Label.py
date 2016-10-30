@@ -110,8 +110,8 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
         self.label.OnRectUpdate.append(proxy.update_rect)
         self.orig_color = None
         self.highlight_color = sfml.graphics.Color.YELLOW
-        self.OnMouseEnter.append(proxy.onMouseEnterHandler)
-        self.OnMouseLeave.append(proxy.onMouseLeaveHandler)
+        self.OnMouseEnter.append(proxy._mproxy('onMouseEnterHandler'))
+        self.OnMouseLeave.append(proxy._mproxy('onMouseLeaveHandler'))
 
     def update_rect(self, label, rect):
         self.rect = rect
@@ -128,5 +128,5 @@ class LabelHighlightComponent(InputManager.UIInputReciever):
     def _reload(self, other, proxy):
         super(LabelHighlightComponent._get_cls(), self)._reload(other, proxy)
         self.label = other.label
-        self.highlight_color = other.highlight_color
+        self.highlight_color = sfml.graphics.Color.RED
         self.orig_color = other.orig_color
