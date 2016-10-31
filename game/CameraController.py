@@ -57,7 +57,7 @@ class CameraController(InputManager.UnmanagedInputReciever):
     def handle_zoom(self, event, wnd):
         delta = event.delta * 0.01
         camera = WorldComposer.composer.camera
-        self.do_zoom(camera, delta)
+        scale_shift = self.do_zoom(camera, delta)
         if delta > 0 and POSITIONAL_ZOOM and camera.scale > 0.05:
             pos = event.position
             size = wnd.size()
@@ -69,6 +69,7 @@ class CameraController(InputManager.UnmanagedInputReciever):
         camera.scale -= scale_shift
         camera.scale = max(0.05, camera.scale)
         camera.scale = min(10.0, camera.scale)
+        return scale_shift
 
     def handle_click(self, event, wnd):
         if event.button == sfml.window.Mouse.RIGHT:
