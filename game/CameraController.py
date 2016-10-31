@@ -35,7 +35,7 @@ def onUnload():
 controller = None
 
 POSITIONAL_ZOOM = True
-KEY_PAN_SPEED = 2000.0
+KEY_PAN_SPEED = 1000.0
 
 @reloadable
 class CameraController(InputManager.UnmanagedInputReciever):
@@ -55,17 +55,20 @@ class CameraController(InputManager.UnmanagedInputReciever):
         self.handle_key()
 
     def handle_zoom(self, event, wnd):
-        delta = event.delta
+        delta = event.delta * 0.01
         camera = WorldComposer.composer.camera
-        scale_shift = delta * 0.01 * (1.0 + camera.scale * 10.0)
-        camera.scale -= scale_shift
-        camera.scale = max(0.05, camera.scale)
-        camera.scale = min(10.0, camera.scale)
+        self.do_zoom(camera, delta)
         if delta > 0 and POSITIONAL_ZOOM and camera.scale > 0.05:
             pos = event.position
             size = wnd.size()
             shift = (pos - size * 0.5) * scale_shift * 0.75
             camera.position += shift
+            
+    def do_zoom(self, camera, zoom_delta):
+        scale_shift = zoom_delta * (1.0 + camera.scale * 10.0)
+        camera.scale -= scale_shift
+        camera.scale = max(0.05, camera.scale)
+        camera.scale = min(10.0, camera.scale)
 
     def handle_click(self, event, wnd):
         if event.button == sfml.window.Mouse.RIGHT:
@@ -96,3 +99,9 @@ class CameraController(InputManager.UnmanagedInputReciever):
             camera.position += Vector2(-KEY_PAN_SPEED, 0.0) * camera.scale * dt
         if Keyboard.is_key_pressed(Keyboard.DOWN):
             camera.position += Vector2(0.0, KEY_PAN_SPEED) * camera.scale * dt
+        if Keyboard.is_key_pressed(Keyboard.ADD) or \
+           Keyboard.is_key_pressed(Keyboard.E):
+            self.do_zoom(camera, dt * 0.15)
+        if Keyboard.is_key_pressed(Keyboard.SUBTRACT) or \
+           Keyboard.is_key_pressed(Keyboard.Q):
+            self.do_zoom(camera, -dt * 0.15)
