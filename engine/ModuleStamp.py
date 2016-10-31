@@ -43,6 +43,8 @@ def handle_focus(event, wnd):
                 module_hash[mdl] = new_time
             else:
                 old_time = module_hash[mdl]
+                #print("old = " + EngineCore.loaded_modules[mdl].__file__ + " " + str(old_time))
+                #print("new = " + EngineCore.loaded_modules[mdl].__file__ + " " + str(new_time))
                 if new_time > old_time:
                     # let's reload module
                     EngineCore.reloadModule(mdl)

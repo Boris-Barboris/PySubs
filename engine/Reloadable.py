@@ -24,7 +24,14 @@ def reloadable(cls):
     
     # now let's redefine cls as class, derived from unproxied classes
     # there can be metaclasses other than type, but that is not handled here
-    cls = type(cls.__name__, tuple(desired_parents), dict(cls.__dict__))
+    new_namespace = cls.__dict__.copy()
+    if '__dict__' in new_namespace:         # some very complex voodoo
+        del new_namespace['__dict__']
+    if hasattr(cls, '__metaclass__'):
+        meta = cls.__metaclass__
+    else:
+        meta = type
+    cls = meta(cls.__name__, tuple(desired_parents), new_namespace)
 
     # in order to provide transparrent access to class methods we need to
     # define our own metaclass
@@ -33,10 +40,10 @@ def reloadable(cls):
             return cls.__getattribute__(cls, name)
         # we need to handle user inheriting reloadable classes without
         # decorator, so there are no inconsistencies in the class hierarchy
-        def __new__(self, name, bases, fields):
+        #def __new__(self, name, bases, fields):
             # placeholder call to type, because it's not yet implemented
-            r = type.__new__(self, name, bases, fields)
-            return r
+        #    r = type.__new__(self, name, bases, fields)
+        #    return r
 
     # proxy to wrap bound methods and redirect them to proxy reloadable
     # first, and then bound to underlying object symbolically
@@ -96,7 +103,7 @@ def reloadable(cls):
 
         # Let's provide easy attribute lookup without get()
         def __getattr__(self, name):
-            return self.__obj.__getattribute__(name)                
+            return self.__obj.__getattribute__(name)
 
         # Get bound method proxy
         def _mproxy(self, name):
@@ -125,13 +132,13 @@ def reloadable(cls):
             mdl = sys.modules[_cls.__module__]
             new_rld_cls = getattr(mdl, _cls.__name__)
             new_cls = new_rld_cls.__cls
-            new_obj = new_cls.__new__(new_cls)
+            new_obj = new_cls.__new__(new_cls, self)
             # check if there is reload method
             reload_method = getattr(new_obj, '_reload', None)
             if reload_method:
                 try:
                     new_obj._reload(self.__obj, self)
-                except Exception:
+                except Exception as ex:
                     traceback.print_exc()
                     print('trying to create new object instead of reloading')
                     self._try_init(new_obj)

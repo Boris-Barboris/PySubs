@@ -360,3 +360,5 @@ ENV/
 .ropeproject
 
 *.bak
+/tmp.png
+/Thumbs.db

@@ -5,6 +5,7 @@ import imp
 import traceback
 import sys
 import time
+import gc
 
 from engine.Reloadable import freeze_module_instances, \
     unfreeze_module_instances, reload_module_instances
@@ -37,7 +38,7 @@ def loadModule(moduleName):
         
 
 
-def reloadModule(moduleName):
+def reloadModule(moduleName, recurs = False):
     '''Reload engine module'''
     if moduleName == __name__:
         print('EngineCore: cannot load EngineCore')
@@ -61,7 +62,9 @@ def reloadModule(moduleName):
             # now handle subscriptions
             if moduleName in module_subscriptions:
                 for subscriber in module_subscriptions[moduleName]:
-                    reloadModule(subscriber)
+                    reloadModule(subscriber, True)
+            if not recurs:
+                gc.collect()
         except BaseException as ex:
             print('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))

@@ -1,6 +1,5 @@
 #   Copyright Alexander Baranin 2016
 
-
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),

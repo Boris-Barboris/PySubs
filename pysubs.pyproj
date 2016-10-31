@@ -43,6 +43,9 @@
     <Compile Include="engine\ModuleStamp.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine\objgraph_utils.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine\OverlayComposer.py">
       <SubType>Code</SubType>
     </Compile>
@@ -53,6 +56,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\SpacialHash.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="engine\testmodules\dict_test.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="engine\testmodules\font_testing.py">
