@@ -51,8 +51,9 @@ class CameraController(InputManager.UnmanagedInputReciever):
         elif type(event) is sfml.window.MouseMoveEvent:
             self.handle_move(event, wnd)
 
-    def handle_frame(self):
-        self.handle_key()
+    def handle_frame(self, focused):
+        if focused:
+            self.handle_key()
 
     def handle_zoom(self, event, wnd):
         delta = event.delta * 0.01

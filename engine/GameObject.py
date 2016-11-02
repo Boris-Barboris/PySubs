@@ -68,7 +68,7 @@ class Component:
     @enabled.setter
     def enabled(self, value):
         if value:
-            if not self.enabled:
+            if self.owner.enabled:
                 self.OnEnable(self._proxy, True)
         else:
             if self.enabled:

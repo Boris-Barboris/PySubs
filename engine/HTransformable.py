@@ -24,6 +24,10 @@ class HTransformable:
         return self.transformable.transform
 
     @property
+    def position(self):
+        return self.transform.transform_point(Vector2(0.0, 0.0))
+
+    @property
     def lposition(self):
         return self.transformable.position
 

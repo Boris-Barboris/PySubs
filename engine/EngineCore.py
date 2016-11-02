@@ -28,7 +28,8 @@ def loadModule(moduleName):
         mdl = importlib.import_module(moduleName)
         loaded_modules[moduleName] = mdl
         handle_imports(mdl)
-        mdl.onLoad(sys.modules[__name__])
+        if hasattr(mdl, 'onLoad'):
+            mdl.onLoad(sys.modules[__name__])
         return
     except BaseException as ex:
         print('Error while loading module ' + moduleName + ':\n' + str(ex))
@@ -48,7 +49,8 @@ def reloadModule(moduleName, recurs = False):
         mdl = loaded_modules[moduleName]
         try:
             freeze_module_instances(moduleName)
-            mdl.onUnload()
+            if hasattr(mdl, 'onUnload'):
+                mdl.onUnload()
         except BaseException as ex:
             print('Error while unloading module ' + moduleName + 
                   ':\n' + str(ex))
@@ -56,7 +58,8 @@ def reloadModule(moduleName, recurs = False):
         try:
             mdl = imp.reload(mdl)
             handle_imports(mdl)
-            mdl.onLoad(sys.modules[__name__])
+            if hasattr(mdl, 'onLoad'):
+                mdl.onLoad(sys.modules[__name__])
             reload_module_instances(moduleName)
             unfreeze_module_instances(moduleName)
             # now handle subscriptions

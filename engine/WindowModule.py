@@ -61,6 +61,9 @@ class Window:
     def map_coords_to_pixel(self, point, view = None):
         return self.wnd_handle.map_coords_to_pixel(point, view)
 
+    def map_pixel_to_coords(self, point, view = None):
+        return self.wnd_handle.map_pixel_to_coords(point, view)
+
     def size(self):
         return self.wnd_handle.size
 

@@ -7,6 +7,7 @@ import math
 
 from engine.GameObject import *
 from engine.HTransformable import HTransformable
+from engine.mathutils import *
 
 from sfml.graphics import *
 from sfml.system import *
@@ -17,7 +18,8 @@ _import_modules = (
     ('WorldComposer', 'engine.WorldComposer'),
     ('OverlayComposer', 'engine.OverlayComposer'),
     ('ShipDynamics', 'game.ShipDynamics'),
-    ('OverlayLabels', 'game.OverlayLabels'))
+    ('OverlayLabels', 'game.OverlayLabels'),
+    ('ShipSteersman', 'game.ShipSteersman'))
 
 _subscribe_modules = [
     'engine.WorldComposer',
@@ -26,12 +28,6 @@ _subscribe_modules = [
 from engine.EngineCore import handle_imports
 
 handle_imports(sys.modules[__name__])
-
-def onLoad(core):
-    Logging.logMessage('Submarine module is loading')
-
-def onUnload():
-    Logging.logMessage('Submarine module is unloading')
 
 
 @reloadable
@@ -52,16 +48,14 @@ class PlayerSubmarine(GameObject):
         self.ctrl_state = ShipDynamics.ShipCtrlState()
         self.ctrl_state.throttle = 0.0
         self.ctrl_state.rudder = 0.0
+        self.steersman = ShipSteersman.ShipSteersman(self)
         
     def run(self, dt):
         # game physics here
         self.dynamics.run(dt)
         # rotate screw axis
         self.model.screw_rot += dt * 8.0 * self.dynamics.engine_throttle
-        if (self.model.screw_rot > 2 * math.pi):
-            self.model.screw_rot -= 2 * math.pi
-        if (self.model.screw_rot < -2 * math.pi):
-            self.model.screw_rot += 2 * math.pi
+        self.model.screw_rot = clamppi(self.model.screw_rot)
 
     def _reload(self, other, proxy):
         super(PlayerSubmarine._get_cls(), self)._reload(other, proxy)
@@ -69,16 +63,17 @@ class PlayerSubmarine(GameObject):
         self.dynamics = other.dynamics
         self.transform = other.transform
         self.ctrl_state = other.ctrl_state
-        self.ctrl_state.throttle = 0.2
+        self.ctrl_state.throttle = 1.0
         self.ctrl_state.rudder = 0.0
+        self.steersman = other.steersman
 
 
 @reloadable
 class SubmarineModel(WorldComposer.WorldRenderable):
     def __init__(self, proxy):
-        super(SubmarineModel._get_cls(), self).__init__(proxy)
         self.transform = HTransformable()
         self.init_model()
+        super(SubmarineModel._get_cls(), self).__init__(proxy)        
 
     def init_model(self):
         # parts of model:
@@ -154,13 +149,21 @@ class SubmarineModel(WorldComposer.WorldRenderable):
             self.screw.append(i * 2.0 * math.pi / self.blades)            
         blade.origin = (0.0, -52.5)
         self.blade = blade
-        self.screw_rot = 0.0    # screw rotation                    
+        self.screw_rot = 0.0    # screw rotation   
 
     def _reload(self, other, proxy):
         super(SubmarineModel._get_cls(), self)._reload(other, proxy)
         self.init_model()
         self.transform = other.transform
         self.screw_rot = other.screw_rot
+
+    def boundingRect(self):
+        rect = self.hull.global_bounds
+        points = rect2points(rect)
+        trans = self.transform.transform
+        trans_points = [trans.transform_point(x) for x in points]
+        brect = points2rect(trans_points, 10.0)
+        return brect
 
     def OnWorldRender(self, wnd, camera):
         render_state = RenderStates(BlendMode.BLEND_ALPHA, 
@@ -220,8 +223,8 @@ class SubmarineLabel(OverlayComposer.OverlayRenderable):
             else:
                 alpha = 255
         color = Color(self.color.r, self.color.g, self.color.b, alpha)
-        screen_pos = wnd.map_coords_to_pixel(self.owner.transform.lposition,
-                                        WorldComposer.composer.view)
+        screen_pos = WorldComposer.composer.world_to_screen(
+            self.owner.transform.lposition)
         render_state = RenderStates(BlendMode.BLEND_ALPHA, 
                             Transform().translate(screen_pos).scale((1.1, 1.1)))
         for shape in self.shapes:

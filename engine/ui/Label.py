@@ -11,7 +11,6 @@ from engine.Event import Event
 from sfml.graphics import *
 from sfml.system import Vector2
 
-
 _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'),
@@ -26,13 +25,6 @@ _subscribe_modules = [
 from engine.EngineCore import handle_imports
 
 handle_imports(sys.modules[__name__])
-
-def onLoad(core):
-    Logging.logMessage('Label is loading')
-
-def onUnload():
-    Logging.logMessage('Label is unloading')
-
 
 @reloadable
 class LabelObject(GameObject):

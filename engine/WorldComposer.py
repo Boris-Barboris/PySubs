@@ -2,10 +2,10 @@
 
 # World composer defines components, that are renderable in World layer
 # We'll probably expand base classes here later
-# TODO - add z-order
 
 from engine.Reloadable import reloadable
 from engine.GameObject import Component
+from engine.SpacialHash import Fixed2DHash
 
 from sfml.graphics import View
 from sfml.graphics import Rectangle
@@ -40,9 +40,10 @@ class Camera:
 @reloadable
 class WorldComposer:
     def __init__(self, proxy):
-        self.components = weakref.WeakSet()
         self.camera = Camera()
         self.view = View()
+        self.components = weakref.WeakSet()
+        self.hash = Fixed2DHash((5000.0, 5000.0), (10, 10), Vector2(-2500.0, -2500.0))
 
     def run(self):
         wnd = WindowModule.app_window
@@ -50,9 +51,17 @@ class WorldComposer:
         # create view from camera and assign it to window
         self.view = self.get_view(self.camera, wnd_size)
         wnd.wnd_handle.view = self.view
-        # iterale all worldRenderables
-        for c in self.components:
-            c.OnWorldRender(wnd, self.camera)
+        # iterate all worldRenderables to update space hashing
+        for comp in self.components:
+            self.hash.unregister(comp, comp.hash_index)
+            comp.hash_index = self.hash.register(comp.boundingRect(), comp)
+        # iterale all worldRenderables under the view rectangle
+        view_rect = Rectangle(self.view.center - self.view.size / 2.0, self.view.size)
+        visible_cells = self.hash.under_rect(view_rect)
+        for cell in visible_cells:
+            if cell is not None:
+                for c in sorted(cell, key = lambda x: x.getDepth()):
+                    c.OnWorldRender(wnd, self.camera)
 
     def get_view(self, camera, wnd_size):
         return View(Rectangle(
@@ -60,27 +69,44 @@ class WorldComposer:
              self.camera.position.y - wnd_size.y * 0.5 * self.camera.scale),
             (wnd_size.x * self.camera.scale, wnd_size.y * self.camera.scale)))
 
+    def world_to_screen(self, world_point):
+        return WindowModule.app_window.map_coords_to_pixel(world_point, self.view)
+
+    def screen_to_world(self, screen_point):
+        return WindowModule.app_window.map_pixel_to_coords(screen_point, self.view)
+
     def _reload(self, other, proxy):
-        self.components = other.components
+        self.hash = other.hash
         self.camera = other.camera
         self.view = other.view
+        self.components = other.components
 
 
-def onComponentEnable(obj, enabled):
+def onComponentEnable(comp, enabled):
     if enabled:
-        composer.components.add(obj)
+        composer.components.add(comp)
+        comp.hash_index = composer.hash.register(comp.boundingRect(), comp)
     else:
-        try:
-            composer.components.remove(obj)
-        except KeyError:
-            pass
+        composer.components.remove(comp)
+        composer.hash.unregister(comp, comp.hash_index)
 
 @reloadable
 class WorldRenderable(Component):
     def __init__(self, proxy, owner = None):
-        super(WorldRenderable._get_cls(), self).__init__(proxy, owner)
-        composer.components.add(proxy)
+        super(WorldRenderable._get_cls(), self).__init__(proxy, owner)        
         self.OnEnable.append(onComponentEnable)
+        self.OnEnable(proxy, True)
+
+    def boundingRect(self):
+        '''get bounding rectangle, used for hashing'''
+        return Rectangle()
+
+    def getDepth(self):
+        return 0.0
 
     def OnWorldRender(self, wnd, camera):
         pass
+
+    def _reload(self, other, proxy):
+        super(WorldRenderable._get_cls(), self)._reload(other, proxy)
+        self.hash_index = other.hash_index

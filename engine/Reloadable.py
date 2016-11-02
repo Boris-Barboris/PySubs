@@ -205,25 +205,24 @@ def unfreeze_module_instances(mdl_name):
         module_heap[mdl_name] = weak_dct
             
 
-@reloadable
-class TestClass:
-    def __init__(self, proxy, num = 3):
-        self.a = num
-
-    def prunt(self):
-        print(self.a)
-
-    def _reload(self, other, proxy):
-        self.a = other.a
-
-@reloadable
-class ClassB(TestClass):
-    def __init__(self, proxy, num = 8):
-        self.a = num
-
-
 # tests
 def testReloadable():
+    @reloadable
+    class TestClass:
+        def __init__(self, proxy, num = 3):
+            self.a = num
+
+        def prunt(self):
+            print(self.a)
+
+        def _reload(self, other, proxy):
+            self.a = other.a
+
+    @reloadable
+    class ClassB(TestClass):
+        def __init__(self, proxy, num = 8):
+            self.a = num
+
     a = TestClass._persistent(1337, 3)
     a.prunt()
     bound_method = a.prunt

@@ -18,13 +18,6 @@ from sfml.system import Vector2
 
 handle_imports(sys.modules[__name__])
 
-def onLoad(core):
-    Logging.logMessage('FPSLabel is loading')
-
-def onUnload():
-    Logging.logMessage('FPSLabel is unloading')
-
-
 @reloadable
 class FPSLabel(Label.LabelObject):
     def __init__(self, proxy):

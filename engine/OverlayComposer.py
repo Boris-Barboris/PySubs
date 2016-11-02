@@ -61,8 +61,8 @@ def onComponentEnable(obj, enabled):
 class OverlayRenderable(Component):
     def __init__(self, proxy, owner = None):
         super(OverlayRenderable._get_cls(), self).__init__(proxy, owner)
-        composer.components.add(proxy)
         self.OnEnable.append(onComponentEnable)
+        self.OnEnable(proxy, True)
 
     def OnOverlayRender(self, wnd, wnd_size, camera):
         pass

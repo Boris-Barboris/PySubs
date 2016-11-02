@@ -150,9 +150,8 @@ class InputManager:
             reciever.handle_key_event(event, wnd)
 
     def handle_frame(self):
-        if self.focused:
-            for reciever in self.unmanaged:
-                reciever.handle_frame()
+        for reciever in self.unmanaged:
+            reciever.handle_frame(self.focused)
 
     def clear_cursored(self):
         if self.cursored is not None:
@@ -238,5 +237,5 @@ class UnmanagedInputReciever:
     def handle_key_event(self, event, wnd):
         pass
 
-    def handle_frame(self, event, wnd):
+    def handle_frame(self):
         pass

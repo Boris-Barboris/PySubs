@@ -5,7 +5,8 @@ _import_modules = (
     ('Logging', 'engine.Logging'),
     ('Submarine', 'game.Submarine'),
     ('FPSLabel', 'game.FPSLabel'),
-    ('CameraController', 'game.CameraController'))
+    ('CameraController', 'game.CameraController'),
+    ('PlayerNavigation', 'game.PlayerNavigation'))
 
 SCHED_ORDER = 40    # standard
 
@@ -13,6 +14,7 @@ def onLoad(core):
     Logging.logMessage('gameLogic is loading')
     global player_sub
     player_sub = Submarine.PlayerSubmarine._persistent('GameLogic.player_sub')
+    PlayerNavigation.navigator.player_vessel = player_sub
     global fps_label
     #fps_label = FPSLabel.FPSLabel._persistent('GameLogic.fps_label')
     fps_label = FPSLabel.FPSLabel()

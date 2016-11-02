@@ -122,7 +122,13 @@
     <Compile Include="game\OverlayLabels.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="game\PlayerNavigation.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="game\ShipDynamics.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="game\ShipSteersman.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="game\start.py">
