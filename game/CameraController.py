@@ -42,6 +42,12 @@ class CameraController(InputManager.UnmanagedInputReciever):
     def __init__(self, proxy):
         self.panning = False
         self.prev_pos = None
+        self.keys_captured = True
+
+    def _reload(self, other, proxy):
+        self.panning = other.panning
+        self.prev_pos = other.prev_pos
+        self.keys_captured = other.keys_captured
 
     def handle_mouse_event(self, event, wnd):
         if type(event) is sfml.window.MouseWheelEvent:
@@ -52,7 +58,7 @@ class CameraController(InputManager.UnmanagedInputReciever):
             self.handle_move(event, wnd)
 
     def handle_frame(self, focused):
-        if focused:
+        if focused and self.keys_captured:
             self.handle_key()
 
     def handle_zoom(self, event, wnd):

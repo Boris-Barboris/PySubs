@@ -18,7 +18,8 @@ _import_modules = (
     ('Logging', 'engine.Logging'),
     ('WorldComposer', 'engine.WorldComposer'),
     ('OverlayComposer', 'engine.OverlayComposer'),
-    ('InputManager', 'engine.InputManager'))
+    ('InputManager', 'engine.InputManager'),
+    ('CameraController', 'game.CameraController'))
 
 _subscribe_modules = [
     'engine.InputManager',
@@ -35,6 +36,8 @@ def onLoad(core):
 
 navigator = None
 
+KEY_DIR_SPEED = 500
+
 @reloadable
 class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get_cls()):
     def __init__(self, proxy):
@@ -45,39 +48,57 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
         self.dirlabel = DirectionLabel()
         self.addComponent(self.dirlabel, proxy)
         self.dirlabel.enabled = False
+        self.mousepos_scr = Vector2(0, 0)
 
     def handle_mouse_event(self, event, wnd):
         if self.player_vessel is not None:
             if type(event) is MouseButtonEvent:
                 if self.directing and event.button == Mouse.LEFT and event.pressed:
-                    pos = event.position
-                    world_pos = WorldComposer.composer.screen_to_world(pos)
-                    vec = world_pos - self.player_vessel.transform.lposition
-                    self.desired_course = rad2dgr(vecangle(vec)) + 90.0
-                    self.player_vessel.steersman.steer_course(self.desired_course)
-                    self.directing = False
-                    self.dirlabel.enabled = False
+                    self.mousepos_scr = event.position
+                    self.stop_directing()
             if type(event) is MouseMoveEvent:
                 self.mousepos_scr = event.position
+
+    def change_desired_course(self):
+        world_pos = WorldComposer.composer.screen_to_world(self.mousepos_scr)
+        vec = world_pos - self.player_vessel.transform.lposition
+        self.desired_course = rad2dgr(vecangle(vec)) + 90.0
+        self.player_vessel.steersman.steer_course(self.desired_course)
+
+    def stop_directing(self):
+        self.directing = False
+        self.dirlabel.enabled = False
+        CameraController.controller.keys_captured = True
+        self.change_desired_course()
 
     def handle_key_event(self, event, wnd):
         if event.code == Keyboard.W:
             if event.pressed:
                 self.directing = True
                 self.dirlabel.enabled = True
+                CameraController.controller.keys_captured = False
             if event.released:
-                self.directing = False
-                self.dirlabel.enabled = False
+                self.stop_directing()
 
     def handle_frame(self, focused):
         if self.player_vessel is not None:
             self.player_vessel.steersman.steer_course(self.desired_course)
             self.vesselpos_scr = WorldComposer.composer.world_to_screen(
                 self.player_vessel.transform.lposition)
-        if self.directing and not Keyboard.is_key_pressed(Keyboard.W) or \
-            not focused:
-            self.directing = False
-            self.dirlabel.enabled = False
+        if self.directing and (not Keyboard.is_key_pressed(Keyboard.W) or \
+            not focused):
+            self.stop_directing()
+        if self.directing:
+            dt = min(EngineCore.frame_time, 0.1)
+            camera = WorldComposer.composer.camera
+            if Keyboard.is_key_pressed(Keyboard.RIGHT):
+                self.mousepos_scr += Vector2(KEY_DIR_SPEED, 0.0) * dt
+            if Keyboard.is_key_pressed(Keyboard.UP):
+                self.mousepos_scr += Vector2(0.0, -KEY_DIR_SPEED) * dt
+            if Keyboard.is_key_pressed(Keyboard.LEFT):
+                self.mousepos_scr += Vector2(-KEY_DIR_SPEED, 0.0) * dt
+            if Keyboard.is_key_pressed(Keyboard.DOWN):
+                self.mousepos_scr += Vector2(0.0, KEY_DIR_SPEED) * dt
 
 
     def _reload(self, other, proxy):
@@ -87,6 +108,7 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
         self.desired_course = other.desired_course
         self.dirlabel = other.dirlabel
         self.dirlabel.enabled = False
+        self.mousepos_scr = other.mousepos_scr
 
 @reloadable
 class DirectionLabel(OverlayComposer.OverlayRenderable):
