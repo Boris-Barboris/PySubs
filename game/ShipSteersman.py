@@ -29,4 +29,4 @@ class ShipSteersman:
 def steer_to_course(ship_dyn, cur_course, des_course):
     err = clamppi(dgr2rad(des_course - cur_course))
     deriv = ship_dyn.angvel
-    return clmp1(4.0 * err - 7.0 * deriv)
+    return clmp1(4.0 * err - 20.0 * deriv)

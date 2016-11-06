@@ -49,7 +49,7 @@ def rad2dgr(rad):
 
 def vecangle(vec):
     vec = normalize(vec)
-    if math.fabs(vec.x) < 0.65:
+    if math.fabs(vec.x) < 0.70:
         return math.copysign(math.acos(vec.x), vec.y)
     else:
         angle = math.asin(vec.y)

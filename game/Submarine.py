@@ -207,6 +207,9 @@ class SubmarineLabel(OverlayComposer.OverlayRenderable):
         self.color = Color(100, 100, 255, 255)
         self.min_zoom = 1.0
         self.full_zoom = 1.5
+        self.vel = RectangleShape()
+        self.vel.outline_thickness = 0.0
+        self.vel.size = (1, 2)
 
     def _reload(self, other, proxy):
         super(SubmarineLabel._get_cls(), self)._reload(other, proxy)
@@ -228,3 +231,9 @@ class SubmarineLabel(OverlayComposer.OverlayRenderable):
         for shape in self.shapes:
             shape.fill_color = color
             wnd.draw(shape, render_state)
+        
+        self.vel.fill_color = color
+        velocity = self.owner.dynamics.velocity
+        self.vel.rotation = rad2dgr(vecangle(velocity))
+        self.vel.ratio = (vec_len(velocity), 1.0)
+        wnd.draw(self.vel, render_state)

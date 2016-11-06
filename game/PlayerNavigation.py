@@ -84,6 +84,9 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
         CameraController.controller.keys_captured = True
         if abs(self.desired_throttle) < 0.05:
             self.desired_throttle = 0.0
+        if self.player_vessel is not None:
+            self.player_vessel.ctrl_state.throttle = self.desired_throttle
+
 
     def handle_key_event(self, event, wnd):
         if event.code == HOTKEY_COURSE:
@@ -129,7 +132,6 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
             self.player_vessel.steersman.steer_course(self.desired_course)
             self.vesselpos_scr = WorldComposer.composer.world_to_screen(
                 self.player_vessel.transform.lposition)
-            self.player_vessel.ctrl_state.throttle = self.desired_throttle
 
 
 
