@@ -38,6 +38,8 @@ navigator = None
 
 KEY_DIR_SPEED = 500
 
+HOTKEY_COURSE = Keyboard.W
+
 @reloadable
 class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get_cls()):
     def __init__(self, proxy):
@@ -72,7 +74,7 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
         self.change_desired_course()
 
     def handle_key_event(self, event, wnd):
-        if event.code == Keyboard.W:
+        if event.code == HOTKEY_COURSE:
             if event.pressed:
                 self.directing = True
                 self.dirlabel.enabled = True
@@ -85,7 +87,7 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
             self.player_vessel.steersman.steer_course(self.desired_course)
             self.vesselpos_scr = WorldComposer.composer.world_to_screen(
                 self.player_vessel.transform.lposition)
-        if self.directing and (not Keyboard.is_key_pressed(Keyboard.W) or \
+        if self.directing and (not Keyboard.is_key_pressed(HOTKEY_COURSE) or \
             not focused):
             self.stop_directing()
         if self.directing:
@@ -109,6 +111,7 @@ class PlayerNavigationInput(InputManager.UnmanagedInputReciever, GameObject._get
         self.dirlabel = other.dirlabel
         self.dirlabel.enabled = False
         self.mousepos_scr = other.mousepos_scr
+
 
 @reloadable
 class DirectionLabel(OverlayComposer.OverlayRenderable):

@@ -109,7 +109,7 @@ class CameraController(InputManager.UnmanagedInputReciever):
             camera.position += Vector2(0.0, KEY_PAN_SPEED) * camera.scale * dt
         if Keyboard.is_key_pressed(Keyboard.ADD) or \
            Keyboard.is_key_pressed(Keyboard.E):
-            self.do_zoom(camera, dt * 0.15)
+            self.do_zoom(camera, dt * 0.20)
         if Keyboard.is_key_pressed(Keyboard.SUBTRACT) or \
            Keyboard.is_key_pressed(Keyboard.Q):
-            self.do_zoom(camera, -dt * 0.15)
+            self.do_zoom(camera, -dt * 0.20)
