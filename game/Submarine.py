@@ -210,6 +210,7 @@ class SubmarineLabel(OverlayComposer.OverlayRenderable):
         self.vel = RectangleShape()
         self.vel.outline_thickness = 0.0
         self.vel.size = (1, 2)
+        self.vel.origin = (0.0, 1.0)
 
     def _reload(self, other, proxy):
         super(SubmarineLabel._get_cls(), self)._reload(other, proxy)

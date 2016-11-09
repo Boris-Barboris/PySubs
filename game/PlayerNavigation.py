@@ -191,8 +191,8 @@ class ThrottleLabel(OverlayComposer.OverlayRenderable):
 
         self.pointer = RectangleShape()
         self.pointer.fill_color = Color(255, 255, 255, 100)
-        self.pointer.position = (11, 200)
-        self.pointer.size = (14, 100)
+        self.pointer.position = (10, 200)
+        self.pointer.size = (15, 100)
         self.pointer.outline_thickness = 0.0
 
     def set_pointer(self, throttle):
