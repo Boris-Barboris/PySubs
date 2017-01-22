@@ -12,13 +12,11 @@ _import_modules = (
 SCHED_ORDER = 10
 
 def onLoad(core):
-    Logging.logMessage('WindowModule is loading')
     global app_window
     app_window = Window._persistent('WindowModule.app_window')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
-    Logging.logMessage('WindowModule is unloading')
     global wnd_handle
     app_window.close_window()
     EngineCore.unschedule_FIFO(SCHED_ORDER)

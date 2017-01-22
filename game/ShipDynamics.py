@@ -16,12 +16,6 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'))
 
-def onLoad(core):
-    Logging.logMessage('ShipDynamics module is loading')
-
-def onUnload():
-    Logging.logMessage('ShipDynamics module is unloading')
-
 
 class ShipCtrlState:
     def __init__(self):

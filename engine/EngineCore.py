@@ -1,6 +1,7 @@
 ﻿#   Copyright Alexander Baranin 2016
 
 import importlib
+import engine.Logging as logging
 import imp
 import traceback
 import sys
@@ -18,11 +19,11 @@ module_subscriptions = {}   # hash of module reloading subscriptions
 def loadModule(moduleName):
     '''Dynamically load engine module'''
     if moduleName == __name__:
-        print('EngineCore: cannot load EngineCore')
+        logging.logMessage('cannot load EngineCore')
         return
-    print('EngineCore: Loading module ' + moduleName)
+    logging.logMessage('Loading module ' + moduleName)
     if moduleName in loaded_modules:
-        print('EngineCore: Module ' + moduleName + ' is already loaded')
+        logging.logMessage('Module ' + moduleName + ' is already loaded')
         return
     try:
         mdl = importlib.import_module(moduleName)
@@ -32,7 +33,7 @@ def loadModule(moduleName):
             mdl.onLoad(sys.modules[__name__])
         return
     except BaseException as ex:
-        print('Error while loading module ' + moduleName + ':\n' + str(ex))
+        logging.logMessage('Error while loading module ' + moduleName + ':\n' + str(ex))
         loaded_modules.pop(moduleName, None)
         traceback.print_exc()
         raise
@@ -42,17 +43,17 @@ def loadModule(moduleName):
 def reloadModule(moduleName, recurs = False):
     '''Reload engine module'''
     if moduleName == __name__:
-        print('EngineCore: cannot load EngineCore')
+        logging.logMessage('cannot load EngineCore')
         return
     if moduleName in loaded_modules:
-        print('EngineCore: Reloading module ' + moduleName)
+        logging.logMessage('Reloading module ' + moduleName)
         mdl = loaded_modules[moduleName]
         try:
             freeze_module_instances(moduleName)
             if hasattr(mdl, 'onUnload'):
                 mdl.onUnload()
         except BaseException as ex:
-            print('Error while unloading module ' + moduleName + 
+            logging.logMessage('Error while unloading module ' + moduleName + 
                   ':\n' + str(ex))
             traceback.print_exc()
         try:
@@ -69,11 +70,11 @@ def reloadModule(moduleName, recurs = False):
             if not recurs:
                 gc.collect()
         except BaseException as ex:
-            print('Error while loading module ' + moduleName + 
+            logging.logMessage('Error while loading module ' + moduleName + 
                   ':\n' + str(ex))
             traceback.print_exc()
     else:
-        print('EngineCore: No module ' + moduleName + ' is found, loading')
+        logging.logMessage('No module ' + moduleName + ' is found, loading')
         loadModule(moduleName)
 
 
@@ -104,7 +105,7 @@ ordered_fifo_ids = []
 def schedule_FIFO(func, order):
     '''Register function for scheduling in FIFO queue'''
     if order in fifo_queue:
-        print('EngineCore: scheduling slot is already occupied, overwriting')
+        logging.logMessage('scheduling slot is already occupied, overwriting')
     fifo_queue[order] = func
     global ordered_fifo_ids
     ordered_fifo_ids.append(order)
@@ -113,7 +114,7 @@ def schedule_FIFO(func, order):
 def unschedule_FIFO(order):
     '''Unregister function from FIFO queue'''
     if not order in fifo_queue:
-        print('EngineCore: cannot unschedule something that is absent')
+        logging.logMessage('cannot unschedule something that is absent')
     else:
         del fifo_queue[order]
         ordered_fifo_ids.remove(order)
@@ -138,11 +139,11 @@ def run():
             try:
                 func()
             except BaseException as ex:
-                print('Exception in scheduled method index= ' + str(order_id) + '\n' 
+                logging.logMessage('Exception in scheduled method index= ' + str(order_id) + '\n' 
                       + str(ex))
                 traceback.print_exc()
             if _shutdown_flag:
-                print('Terminating EngineCore normally...')
+                logging.logMessage('Terminating EngineCore normally...')
                 return
         new_time = time.clock()
         global frame_time
@@ -158,7 +159,7 @@ def testLoading():
     loadModule('engine.testmodules.TestBootstrap')
     reloadModule('engine.testmodules.TestBootstrap')
     loadModule('engine.foobar')
-    print(loaded_modules)
+    logging.logMessage(loaded_modules)
     keys = input('Q - exit :')
     Logging = loaded_modules['engine.Logging']
     while not keys in ('q','Q'):

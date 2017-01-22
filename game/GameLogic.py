@@ -11,7 +11,6 @@ _import_modules = (
 SCHED_ORDER = 40    # standard
 
 def onLoad(core):
-    Logging.logMessage('gameLogic is loading')
     global player_sub
     player_sub = Submarine.PlayerSubmarine._persistent('GameLogic.player_sub')
     PlayerNavigation.navigator.player_vessel = player_sub
@@ -21,7 +20,6 @@ def onLoad(core):
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
-    Logging.logMessage('gameLogic is unloading')
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 
 player_sub = None

@@ -19,13 +19,12 @@ _import_modules = (
     ('WorldComposer', 'engine.WorldComposer'))
 
 def onLoad(core):
-    Logging.logMessage('OverlayCmposer is loading')
     global composer
     composer = OverlayComposer._persistent('OverlayCmposer.composer')
     Composers.composers.OverlayLayer = composer
 
 def onUnload():
-    Logging.logMessage('OverlayCmposer is unloading')
+    pass
 
 
 composer = None

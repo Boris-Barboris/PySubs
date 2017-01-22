@@ -16,13 +16,12 @@ _import_modules = (
     ('WindowModule', 'engine.WindowModule'))
 
 def onLoad(core):
-    Logging.logMessage('UIComposer is loading')
     global composer
     composer = UIComposer._persistent('UIComposer.composer')
     Composers.composers.UILayer = composer
 
 def onUnload():
-    Logging.logMessage('UIComposer is unloading')
+    pass
 
 
 composer = None

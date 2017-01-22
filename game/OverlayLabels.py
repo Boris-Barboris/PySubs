@@ -8,12 +8,6 @@ _import_modules = (
     ('EngineCore', 'engine.EngineCore'),
     ('Logging', 'engine.Logging'))
 
-def onLoad(core):
-    Logging.logMessage('OverlayLabels module is loading')
-
-def onUnload():
-    Logging.logMessage('OverlayLabels module is unloading')
-
 
 class submarine_label_class:
     def __init__(self):

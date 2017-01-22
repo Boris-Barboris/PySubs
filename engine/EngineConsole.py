@@ -15,7 +15,6 @@ _import_modules = (
 SCHED_ORDER = 30
 
 def onLoad(core):
-    Logging.logMessage('EngineConsole is loading')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
     IOBroker.register_handler(keyboard_handler, sfml.window.KeyEvent)
     # now extensions
@@ -23,7 +22,6 @@ def onLoad(core):
     extensionCommands = ExtentionCommands._persistent('EngineConsole.extensionCommands')
 
 def onUnload():
-    Logging.logMessage('EngineConsole is unloading')
     IOBroker.unregister_handler(keyboard_handler, sfml.window.KeyEvent)
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 

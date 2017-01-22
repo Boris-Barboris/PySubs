@@ -20,13 +20,12 @@ _import_modules = (
     ('WindowModule', 'engine.WindowModule'))
 
 def onLoad(core):
-    Logging.logMessage('WorldComposer is loading')
     global composer
     composer = WorldComposer._persistent('WorldComposer.composer')
     Composers.composers.WorldLayer = composer
 
 def onUnload():
-    Logging.logMessage('WorldComposer is unloading')
+    pass
 
 
 composer = None

@@ -12,11 +12,10 @@ _import_modules = (
     ('Logging', 'engine.Logging'))
 
 def onLoad(core):
-    Logging.logMessage('TextManager is loading')
     load_font('calibri.ttf')
 
 def onUnload():
-    Logging.logMessage('TextManager is unloading')
+    pass
 
 
 # global loaded fonts dictionary

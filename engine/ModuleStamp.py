@@ -13,13 +13,11 @@ _import_modules = (
 
 
 def onLoad(core):
-    Logging.logMessage('ModuleStamp is loading')
     IOBroker.register_handler(handle_focus, sfml.window.FocusEvent)
     EngineConsole.register_extension(toggle_command, 'stamp')
     EngineCore.schedule_FIFO(initialize, 1000)
     
 def onUnload():
-    Logging.logMessage('ModuleStamp is unloading')
     EngineConsole.unregister_extension('stamp')
     IOBroker.unregister_handler(handle_focus, sfml.window.FocusEvent)
 

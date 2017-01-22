@@ -24,13 +24,11 @@ _import_modules = (
 SCHED_ORDER = 50
 
 def onLoad(core):
-    Logging.logMessage('SceneComposer is loading')
     global composers
     composers = Composers._persistent('ScneneComposer.composers')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload(core):
-    Logging.logMessage('SceneComposer is unloading')
     EngineCore.unschedule_FIFO(SCHED_ORDER)
 
 

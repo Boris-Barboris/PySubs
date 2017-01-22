@@ -45,7 +45,6 @@ _import_modules = (
 SCHED_ORDER = 35    # some unmanaged recieves want to handle input every frame
 
 def onLoad(core):
-    Logging.logMessage('InputManager is loading')
     global inputManager
     inputManager = InputManager._persistent('InputManager.inputManager')
     IOBroker.register_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
@@ -57,7 +56,6 @@ def onLoad(core):
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
 
 def onUnload():
-    Logging.logMessage('InputManager is unloading')
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseMoveEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseWheelEvent)
     IOBroker.unregister_handler(handle_mouse_event, sfml.window.MouseButtonEvent)

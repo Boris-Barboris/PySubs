@@ -24,13 +24,12 @@ from engine.EngineCore import handle_imports
 handle_imports(sys.modules[__name__])
 
 def onLoad(core):
-    Logging.logMessage('CameraController is loading')
     global controller
     controller = CameraController._persistent('CameraController.controller')
     InputManager.inputManager.unmanaged.add(controller)
 
 def onUnload():
-    Logging.logMessage('CameraController is unloading')
+    pass
 
 controller = None
 

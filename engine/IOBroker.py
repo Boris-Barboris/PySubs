@@ -12,7 +12,6 @@ _import_modules = (
 SCHED_ORDER = 20
 
 def onLoad(core):
-    Logging.logMessage('IOBroker is loading')
     EngineCore.schedule_FIFO(run, SCHED_ORDER)
     # load event map
     global event_map    
@@ -23,7 +22,6 @@ def onLoad(core):
     register_handler(resize_std_event, sfml.window.ResizeEvent)
 
 def onUnload():
-    Logging.logMessage('IOBroker is unloading')
     # standard window event handlers
     unregister_handler(close_std_event, sfml.window.CloseEvent)
     unregister_handler(fullscreen_std_event, sfml.window.KeyEvent)
